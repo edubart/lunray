@@ -1,0 +1,5 @@
+local Ray = @record{origin: vec3, direction: vec3}
+
+local function Ray_pointat(r: Ray, t: float): vec3
+  return vec3_addmul(r.origin, r.direction, t)
+end

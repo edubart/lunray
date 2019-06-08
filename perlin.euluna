@@ -1,0 +1,75 @@
+local PERLIN_SIZE: const = 256
+
+local perlin: record{
+  rands: vec3[PERLIN_SIZE],
+  permx: int[PERLIN_SIZE],
+  permy: int[PERLIN_SIZE],
+  permz: int[PERLIN_SIZE]
+}
+
+local function Perlin_generate()
+  for i=0,PERLIN_SIZE-1 do
+    perlin.rands[i] = vec3_unit(vec3{2*frand()-1, 2*frand()-1, 2*frand()-1})
+  end
+end
+
+local function Perlin_permute(perm: int[PERLIN_SIZE]*)
+  for i=0,PERLIN_SIZE-1 do
+    perm[i] = @int(i)
+  end
+  for i=PERLIN_SIZE-1,1,-1 do
+    local target = @int(frand()*(i+1))
+    perm[i], perm[target] = perm[target], perm[i]
+  end
+end
+
+local function trilinear_interp(c: vec3[2][2][2], u: float, v: float, w: float)
+  u, v, w = u*u*(3-2*u), v*v*(3-2*v), w*w*(3-2*w)
+  local accum: float = 0
+  for i=0,1 do
+    for j=0,1 do
+      for k=0,1 do
+        local weight = vec3{u-i, v-j, w-k}
+        accum = accum +
+          ((i*u) + (1-i)*(1-u))*
+          ((j*v) + (1-j)*(1-v))*
+          ((k*w) + (1-k)*(1-w))*
+          vec3_dot(c[i][j][k], weight)
+      end
+    end
+  end
+  return accum
+end
+
+local function Perlin_noise(p: vec3): float
+  local u, v, w = p.x - math_floor(p.x), p.y - math_floor(p.y), p.z - math_floor(p.z)
+  local pi, pj, pk = @int(math_floor(p.x)), @int(math_floor(p.y)), @int(math_floor(p.z))
+  local c: vec3[2][2][2]
+  for i=0,1 do
+    for j=0,1 do
+      for k=0,1 do
+        c[i][j][k] = perlin.rands[
+          perlin.permx[(pi+i) & 255] ~
+          perlin.permy[(pj+j) & 255] ~
+          perlin.permx[(pk+k) & 255]]
+      end
+    end
+  end
+  return trilinear_interp(c, u, v, w)
+end
+
+local function Perlin_turb(p: vec3, depth: int)
+  local accum: float = 0
+  local weight: float = 1
+  for i=0,depth-1 do
+    accum = accum + weight * Perlin_noise(p)
+    weight = weight * 0.5
+    p = vec3_add(p, p)
+  end
+  return math_abs(accum)
+end
+
+Perlin_generate()
+Perlin_permute(perlin.permx)
+Perlin_permute(perlin.permy)
+Perlin_permute(perlin.permz)

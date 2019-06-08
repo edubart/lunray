@@ -1,0 +1,114 @@
+local MATERIALS = @enum {
+  LAMBERTIAN = 0,
+  METAL = 1,
+  DIELECTRIC = 2
+}
+
+local Material = @record{
+  kind: MATERIALS,
+  albedo: Texture,
+  emitting: Texture,
+  fuzz: float
+}
+
+local Hit = @record{
+  p: vec3,
+  normal: vec3,
+  uv: vec2,
+  mat: Material*,
+  t: float
+}
+
+local function reflect(v: vec3, n: vec3): vec3
+  return vec3_sub(v, vec3_smul(n, 2*vec3_dot(v,n)))
+end
+
+local function refract(v: vec3, n: vec3, ni: float): boolean, vec3
+  local uv = vec3_unit(v)
+  local dt = vec3_dot(uv, n)
+  local discriminant = 1 - ni*ni*(1-dt*dt)
+  if discriminant > 0 then
+    local refracted = vec3_sub(
+      vec3_smul(vec3_sub(uv, vec3_smul(n, dt)), ni),
+      vec3_smul(n, math_sqrt(discriminant)))
+    return true, refracted
+  else
+    return false, vec3{}
+  end
+end
+
+local function schlick(cosine: float, refidx: float): float
+  local r0 = (1-refidx) / (1+refidx)
+  r0 = r0*r0
+  return r0 + (1-r0)*math_pow(1-cosine, 5)
+end
+
+local function Material_lambertian_scatter(self: Material*, r: Ray, rec: Hit): boolean, vec3, Ray
+  local scattered = Ray{rec.p}
+  ## if CARTOONIZED then
+    scattered.direction = vec3{0,1,0}
+  ## else
+    scattered.direction = vec3_random_in_hemisphere(rec.normal)
+  ## end
+  return true, Texture_color(self.albedo, rec.uv, rec.p), scattered
+end
+
+local function Material_metal_scatter(self: Material*, r: Ray, rec: Hit): boolean, vec3, Ray
+  local reflected = reflect(vec3_unit(r.direction), rec.normal)
+  ## if not CARTOONIZED then
+    if self.fuzz > 0 then
+      reflected = vec3_add(reflected, vec3_smul(vec3_random_in_hemisphere(rec.normal), self.fuzz))
+    end
+  ## end
+  local scattered = Ray{rec.p, reflected}
+  local forward = vec3_dot(scattered.direction, rec.normal) > 0
+  return forward, Texture_color(self.albedo, rec.uv, rec.p), scattered
+end
+
+local function Material_dielectric_scatter(self: Material*, r: Ray, rec: Hit): boolean, vec3, Ray
+  local outward_normal: vec3
+  local ni: float, reflectprob: float
+  local cosine = vec3_dot(r.direction, rec.normal) / vec3_length(r.direction)
+  if vec3_dot(r.direction, rec.normal) > 0 then
+    cosine = math_sqrt(1 - self.fuzz*self.fuzz*(1-cosine*cosine))
+    outward_normal = vec3_neg(rec.normal)
+    ni = self.fuzz
+  else
+    cosine = -cosine
+    outward_normal = rec.normal
+    ni = 1 / self.fuzz
+  end
+  local forward, refracted = refract(r.direction, outward_normal, ni)
+  local scattered = Ray{rec.p}
+  ## if not CARTOONIZED then
+    if forward then
+      reflectprob = schlick(cosine, self.fuzz)
+    else
+      reflectprob = 1
+    end
+    if frand() < reflectprob then
+      scattered.direction = reflect(vec3_unit(r.direction), rec.normal)
+    else
+      scattered.direction = refracted
+    end
+  ## else
+    scattered.direction = refracted
+  ## end
+  return true, vec3{1,1,1}, scattered
+end
+
+local function Material_scatter(self: Material*, r: Ray, rec: Hit): boolean, vec3, Ray
+  switch self.kind
+  case MATERIALS.LAMBERTIAN then
+    return Material_lambertian_scatter(self, r, rec)
+  case MATERIALS.METAL then
+    return Material_metal_scatter(self, r, rec)
+  case MATERIALS.DIELECTRIC then
+    return Material_dielectric_scatter(self, r, rec)
+  end
+  return false, vec3{}, Ray{}
+end
+
+local function Material_emitted(self: Material*, uv: vec2, p: vec3): vec3
+  return Texture_color(self.emitting, uv, p)
+end

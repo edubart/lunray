@@ -1,0 +1,45 @@
+local TEXTURES = @enum {
+  COLOR = 0,
+  CHECKER = 1,
+  NOISE = 2,
+}
+
+local Texture = @record {
+  kind: TEXTURES,
+  color: vec3,
+  scale: float
+}
+
+local function Texture_color_color(self: Texture*, uv: vec2, p: vec3): vec3
+  return self.color
+end
+
+local function Texture_checker_color(self: Texture*, uv: vec2, p: vec3): vec3
+  local sines = math_sin(10*p.x)*math_sin(10*p.y)*math_sin(10*p.z)
+  if sines < 0 then
+    return vec3{1,1,1}
+  else
+    return self.color
+  end
+end
+
+local function Texture_noise_color(self: Texture*, uv: vec2, p: vec3): vec3
+  local ticks: float = SDL_GetTicks() / 10000
+  local offset = vec3{ticks, ticks, ticks}
+  local noise = Perlin_turb(vec3_smul(vec3_add(p, offset), self.scale), 1)
+
+  --local noise = 0.5*(1+Perlin_turb(vec3_smul(p, self.scale), 2))
+  return vec3_smul(self.color, noise)
+end
+
+local function Texture_color(self: Texture*, uv: vec2, p: vec3): vec3
+  switch self.kind
+  case TEXTURES.COLOR then
+    return Texture_color_color(self, uv, p)
+  case TEXTURES.CHECKER then
+    return Texture_checker_color(self, uv, p)
+  case TEXTURES.NOISE then
+    return Texture_noise_color(self, uv, p)
+  end
+  return vec3{}
+end

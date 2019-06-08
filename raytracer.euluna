@@ -1,0 +1,224 @@
+local const SCREEN_WIDTH = 960--480
+local const SCREEN_HEIGHT = 540--270
+local const NUMSAMPLES = 1
+local const MAXDEPTH = 16
+
+local worldsize
+local Hitlist = @Sphere[500]
+local world: Hitlist
+local cam: Camera
+local window: Window
+local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] !aligned(16)
+## if DENOISER then
+local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT] !aligned(16)
+local ntem = 0
+## end
+
+local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: float, tmax: float): boolean, Hit
+  local rec: Hit
+  local tnear = tmax
+  local hashit = false
+  for i=0,<worldsize do
+    local hitted, temprec = Sphere_hit(self[i], r, tmin, tnear)
+    if hitted and temprec.t < tnear then
+      hashit = true
+      tnear = temprec.t
+      rec = temprec
+    end
+  end
+  return hashit, rec
+end
+
+local function sky_color(direction: vec3)
+  local t = 0.5*(direction.y/vec3_length(direction) + 1)
+  return vec3_lerp(vec3{1,1,1}, vec3{0.5, 0.7, 1}, t)
+end
+
+local function trace_ray(r: Ray, depth: integer): vec3 !noinline
+  local hitted, rec = Hitlist_hit(world, r, 0.001, 1e32)
+  if hitted then
+    local emitted = Material_emitted(rec.mat, rec.uv, rec.p)
+    if depth > MAXDEPTH then
+      return emitted
+    end
+    local forward, attenuation, scattered = Material_scatter(rec.mat, r, rec)
+    if forward then
+      return vec3_add(emitted, vec3_mul(trace_ray(scattered, depth+1), attenuation))
+    else
+      return emitted
+    end
+  end
+  return vec3{0,0,0}--sky_color(r.direction)
+end
+
+local function trace_rays() !noinline
+  ## if DENOISER then
+    if ntem == 0 then
+      for y=0,<SCREEN_HEIGHT do
+        for x=0,<SCREEN_WIDTH do
+          tempixels[y][x] = vec3{}
+        end
+      end
+    end
+    ntem = ntem + 1
+  ## end
+  local yoff = window.height - 1
+  !!cemit '#pragma omp parallel for schedule(dynamic)'
+  for y=0,<SCREEN_HEIGHT do
+    for x=0,<SCREEN_WIDTH do
+      ## if symbols.NUMSAMPLES.attr.value:tonumber() == 1 then
+        local v, u
+        ## if DENOISER then
+          v, u = (y + frand() - 0.5) / @float(SCREEN_HEIGHT), (x + frand() - 0.5) / @float(SCREEN_WIDTH)
+        ## else
+          v, u =  y / @float(SCREEN_HEIGHT), x / @float(SCREEN_WIDTH)
+        ## end
+        local col = trace_ray(Camera_getray(cam, u, v), 0)
+      ## else
+        local col: vec3
+        for i=1,NUMSAMPLES do
+          local v, u = (y + frand() - 0.5) / @float(SCREEN_HEIGHT), (x + frand() - 0.5) / @float(SCREEN_WIDTH)
+          col = vec3_add(col, trace_ray(Camera_getray(cam, u, v), 0))
+        end
+        col = vec3_sdiv(col, NUMSAMPLES)
+      ## end
+      col = vec3_sqrt(col) -- gamma correction
+      col = vec3_min(col, vec3{1,1,1})
+      ## if DENOISER then
+        tempixels[y][x] = vec3_add(tempixels[y][x], col)
+        pixels[yoff - y][x] = argbcolor_fromvec3(vec3_sdiv(tempixels[y][x], ntem))
+      ## else
+        pixels[yoff - y][x] = argbcolor_fromvec3(col)
+      ## end
+    end
+  end
+end
+
+local function refresh()
+  ## if DENOISER then
+  ntem = 0
+  ## end
+end
+
+local function poll_events() !noinline
+  local event: SDL_Event
+  while SDL_PollEvent(event) ~= 0 do
+    switch event.type
+    case SDL_QUIT then
+      return false
+    case SDL_KEYDOWN then
+      local kevent = @SDL_KeyboardEvent*(&event)
+      switch kevent.keysym.sym
+      case SDLK_UP then
+        Camera_rotate(cam, 0.1, 0)
+        refresh()
+      case SDLK_DOWN then
+        Camera_rotate(cam, -0.1, 0)
+        refresh()
+      case SDLK_RIGHT then
+        Camera_rotate(cam, 0, -0.1)
+        refresh()
+      case SDLK_LEFT then
+        Camera_rotate(cam, 0, 0.1)
+        refresh()
+      case SDLK_w then
+        Camera_translate(cam, 0, 0, 0.1)
+        refresh()
+      case SDLK_s then
+        Camera_translate(cam, 0, 0, -0.1)
+        refresh()
+      case SDLK_a then
+        Camera_translate(cam, -0.1, 0, 0)
+        refresh()
+      case SDLK_d then
+        Camera_translate(cam, 0.1, 0, 0)
+        refresh()
+      case SDLK_e then
+        Camera_translate(cam, 0, 0.1, 0)
+        refresh()
+      case SDLK_q then
+        Camera_translate(cam, 0, -0.1, 0)
+        refresh()
+      end
+    end
+  end
+  return true
+end
+
+
+local function world_init()
+  world[1] = Sphere{center={ 0,-1000,0}, radius=1000, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.CHECKER, color={0.2, 0.3, 0.1}, scale=10}}}
+  world[3] = Sphere{center={ 0,    1,0}, radius=1, mat={MATERIALS.DIELECTRIC, fuzz=1.5}}
+  world[2] = Sphere{
+    center={-4,1,0},
+    radius=1,
+    mat={
+      MATERIALS.LAMBERTIAN,
+      albedo={
+        TEXTURES.NOISE,
+        color={1, 1, 1},
+        scale=9
+      },
+      emitting={
+        TEXTURES.COLOR,
+        color={0.9,0.3,0.0}
+      }
+    }
+  }
+  world[4] = Sphere{center={ 4,    1,0}, radius=1, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.7, 0.6, 0.5}}}}
+
+  local i = 5
+  local const NUMSPHERES = 1
+  for a=-NUMSPHERES,<NUMSPHERES do
+    for b=-NUMSPHERES,<NUMSPHERES do
+      local choosemat = frand()
+      local center = vec3{a+0.9*frand(), 0.2, b+0.9*frand()}
+      if vec3_length(vec3_sub(center, vec3{4,0.2,0})) > 0.9 then
+        if choosemat < 0.8 then --diffuse
+          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.COLOR, {frand()*frand(), frand()*frand(), frand()*frand()}}}}
+        elseif choosemat < 0.95 then -- metal
+          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.5*(1+frand()), 0.5*(1+frand()), 0.5*(1+frand())}}, fuzz=0.5*frand()}}
+        else -- glass
+          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.DIELECTRIC, fuzz=1.5}}
+        end
+        i = i + 1
+      end
+    end
+  end
+  worldsize = i
+
+  local lookfrom = vec3{2,3,2}
+  local lookat = vec3{0,1,0}
+  local vup = vec3{0,1,0}
+  local vfov = 59
+  local aspect = SCREEN_WIDTH/@float(SCREEN_HEIGHT)
+  local aperture: float = 0--0.1
+  local focusdist: float = 10
+  cam = Camera_create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)
+end
+
+local function go()
+  world_init()
+  window = Window_create(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+  -- draw
+  local lastticks = SDL_GetTicks()
+  local fps = 0
+  repeat
+    local ticks = SDL_GetTicks()
+    if ticks - lastticks >= 1000 then
+      print('FPS', fps)
+      lastticks = ticks
+      fps = 0
+    end
+
+    local quit = not poll_events()
+    trace_rays()
+    Window_uploadpixels(window, &pixels[0][0])
+    fps = fps + 1
+  until quit
+
+  Window_destroy(window)
+end
+
+go()

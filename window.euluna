@@ -1,0 +1,50 @@
+local argbcolor = @record{
+  b: byte,
+  g: byte,
+  r: byte,
+  a: byte
+}
+
+local Window = @record {
+  window: SDL_WindowPtr,
+  renderer: SDL_RendererPtr,
+  texture: SDL_TexturePtr,
+  width: integer,
+  height: integer,
+  pitch: cint
+}
+
+local function Window_create(width: integer, height: integer): Window
+  SDL_Init(SDL_INIT_VIDEO)
+
+  local window = SDL_CreateWindow("An SDL2 Window",
+    SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+    @cint(width), @cint(height), SDL_WINDOW_OPENGL)
+  assert(window, "Could not create window")
+
+  local renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)
+  assert(renderer, "Could not create renderer")
+  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE)
+
+  local texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, @cint(width), @cint(height))
+  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE)
+
+  return Window{window, renderer, texture, width, height, @cint(width*4)}
+end
+
+local function Window_destroy(self: Window*)
+  SDL_DestroyTexture(self.texture)
+  SDL_DestroyRenderer(self.renderer)
+  SDL_DestroyWindow(self.window)
+  SDL_Quit()
+end
+
+local function Window_uploadpixels(self: Window*, pixels: argbcolor*)
+  SDL_UpdateTexture(self.texture, nilptr, pixels, self.pitch)
+  SDL_RenderCopy(self.renderer, self.texture, nilptr, nilptr)
+  SDL_RenderPresent(self.renderer)
+end
+
+local function argbcolor_fromvec3(col: vec3): argbcolor
+  return argbcolor{@uint8(col.z*255), @uint8(col.y*255), @uint8(col.x*255), 255}
+end

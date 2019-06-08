@@ -1,0 +1,44 @@
+local Sphere = @record{
+  center: vec3,
+  radius: float,
+  mat: Material
+}
+
+local function Sphere_get_uv(p: vec3): vec2
+  local phi = math_atan2(p.z, p.x)
+  local theta = math_asin(p.y)
+  return vec2{
+    1 - ((phi + math_pi) / (2*math_pi)),
+    (theta + math_pi/2) / math_pi,
+  }
+end
+
+local function Sphere_hit(self: Sphere*, r: Ray, tmin: float, tmax: float): boolean, Hit
+  local oc = vec3_sub(r.origin, self.center)
+  local a = vec3_squaredlength(r.direction)
+  local b = vec3_dot(oc, r.direction)
+  local c = vec3_squaredlength(oc) - self.radius*self.radius
+  local discriminant = b*b - a*c
+  local rec: Hit
+  local t: float
+  if discriminant > 0 then
+    local droot = math_sqrt(discriminant)
+    local ainv = 1 / a
+    t = (-b - droot) * ainv
+    if t < tmax and t > tmin then
+      goto hitted
+    end
+    t = (-b + droot) * ainv
+    if t < tmax and t > tmin then
+      goto hitted
+    end
+  end
+  do return false, rec end
+::hitted::
+  rec.p = Ray_pointat(r, t)
+  rec.normal = vec3_sdiv(vec3_sub(rec.p, self.center), self.radius)
+  rec.uv = Sphere_get_uv(rec.normal)
+  rec.mat = &self.mat
+  rec.t = t
+  return true, rec
+end
