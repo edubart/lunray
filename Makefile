@@ -1,18 +1,18 @@
-SRCS=$(wildcard *.euluna)
+SRCS=$(wildcard *.nelua)
 
-all: lunray.euluna lunray
+all: lunray.nelua lunray
 
-lunray.euluna: $(SRCS)
-	cat header.euluna > lunray.euluna
-	cat math.euluna >> lunray.euluna
-	cat vec3.euluna >> lunray.euluna
-	cat mat4.euluna >> lunray.euluna
-	cat perlin.euluna >> lunray.euluna
-	cat sdl2.euluna >> lunray.euluna
-	cat ray.euluna >> lunray.euluna
-	cat texture.euluna >> lunray.euluna
-	cat material.euluna >> lunray.euluna
-	cat sphere.euluna >> lunray.euluna
-	cat camera.euluna >> lunray.euluna
-	cat window.euluna >> lunray.euluna
-	cat raytracer.euluna >> lunray.euluna
+lunray.nelua: $(SRCS)
+	cat header.nelua > lunray.nelua
+	cat math.nelua >> lunray.nelua
+	cat vec3.nelua >> lunray.nelua
+	cat mat4.nelua >> lunray.nelua
+	cat perlin.nelua >> lunray.nelua
+	cat sdl2.nelua >> lunray.nelua
+	cat ray.nelua >> lunray.nelua
+	cat texture.nelua >> lunray.nelua
+	cat material.nelua >> lunray.nelua
+	cat sphere.nelua >> lunray.nelua
+	cat camera.nelua >> lunray.nelua
+	cat window.nelua >> lunray.nelua
+	cat raytracer.nelua >> lunray.nelua
