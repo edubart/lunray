@@ -28,7 +28,7 @@ local function math_min(a: float64, b: float64): float64 !cimport('fminf') end
 local function math_floor(x: float64): float64 !cimport('floorf') end
 ## end
 
-local const math_pi: float = 3.141592653589793
+local compconst math_pi: float = 3.141592653589793
 
 local seed: int32 = 0
 local function frand(): float

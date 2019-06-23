@@ -1,7 +1,7 @@
-local const SCREEN_WIDTH = 960--480
-local const SCREEN_HEIGHT = 540--270
-local const NUMSAMPLES = 1
-local const MAXDEPTH = 16
+local compconst SCREEN_WIDTH = 960--480
+local compconst SCREEN_HEIGHT = 540--270
+local compconst NUMSAMPLES = 1
+local compconst MAXDEPTH = 16
 
 local worldsize
 local Hitlist = @Sphere[500]
@@ -48,7 +48,7 @@ local function trace_ray(r: Ray, depth: integer): vec3 !noinline
       return emitted
     end
   end
-  return vec3{0,0,0}--sky_color(r.direction)
+  return sky_color(r.direction)
 end
 
 local function trace_rays() !noinline
@@ -168,7 +168,7 @@ local function world_init()
   world[4] = Sphere{center={ 4,    1,0}, radius=1, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.7, 0.6, 0.5}}}}
 
   local i = 5
-  local const NUMSPHERES = 1
+  local compconst NUMSPHERES = 1
   for a=-NUMSPHERES,<NUMSPHERES do
     for b=-NUMSPHERES,<NUMSPHERES do
       local choosemat = frand()

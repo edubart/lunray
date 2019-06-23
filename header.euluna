@@ -1,7 +1,7 @@
 !!strict
 
 -- optimize for performance
-!!cflags '-O3 -ffast-math -march=native -fno-plt -flto -fopenmp -rdynamic -g'
+!!cflags '-O3 -ffast-math -march=native -fno-plt -fopenmp -rdynamic -g'
 
 ## local CARTOONIZED = false
 ## local DENOISER = true

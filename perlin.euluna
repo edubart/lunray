@@ -1,4 +1,4 @@
-local PERLIN_SIZE: const = 256
+local PERLIN_SIZE: compconst = 256
 
 local perlin: record{
   rands: vec3[PERLIN_SIZE],
