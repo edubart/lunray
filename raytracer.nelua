@@ -1,3 +1,39 @@
+--!!strict
+
+-- optimize for performance
+!!cflags '-O3 -ffast-math -march=native -fno-plt -fopenmp -rdynamic -g'
+
+[##[
+state.modname = 'lunray'
+state.nohashcodenames = true
+_G.CARTOONIZED = false
+_G.DENOISER = true
+]##]
+
+--TODO: multidimensional arrays shortcut swap?
+--TODO: record field aliases
+--TODO: record operators
+--TODO: record overloading
+--TODO: math library
+--TODO: evaluate const numeric expressions
+--TODO: optional type
+--TODO: remove !! pragmas and use preprocessor instead
+
+global float = @float64
+global int = @int64
+
+require 'math'
+require 'vec3'
+require 'mat4'
+require 'perlin'
+require 'sdl2'
+require 'ray'
+require 'texture'
+require 'material'
+require 'sphere'
+require 'camera'
+require 'window'
+
 local compconst SCREEN_WIDTH = 960--480
 local compconst SCREEN_HEIGHT = 540--270
 local compconst NUMSAMPLES = 1
@@ -19,7 +55,7 @@ local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: float, tmax: float): bo
   local tnear = tmax
   local hashit = false
   for i=0,<worldsize do
-    local hitted, temprec = Sphere_hit(self[i], r, tmin, tnear)
+    local hitted, temprec = Sphere.hit(self[i], r, tmin, tnear)
     if hitted and temprec.t < tnear then
       hashit = true
       tnear = temprec.t
@@ -30,20 +66,20 @@ local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: float, tmax: float): bo
 end
 
 local function sky_color(direction: vec3)
-  local t = 0.5*(direction.y/vec3_length(direction) + 1)
-  return vec3_lerp(vec3{1,1,1}, vec3{0.5, 0.7, 1}, t)
+  local t = 0.5*(direction.y/vec3.length(direction) + 1)
+  return vec3.lerp(vec3{1,1,1}, vec3{0.5, 0.7, 1}, t)
 end
 
 local function trace_ray(r: Ray, depth: integer): vec3 !noinline
   local hitted, rec = Hitlist_hit(world, r, 0.001, 1e32)
   if hitted then
-    local emitted = Material_emitted(rec.mat, rec.uv, rec.p)
+    local emitted = Material.emitted(rec.mat, rec.uv, rec.p)
     if depth > MAXDEPTH then
       return emitted
     end
-    local forward, attenuation, scattered = Material_scatter(rec.mat, r, rec)
+    local forward, attenuation, scattered = Material.scatter(rec.mat, r, rec)
     if forward then
-      return vec3_add(emitted, vec3_mul(trace_ray(scattered, depth+1), attenuation))
+      return vec3.add(emitted, vec3.mul(trace_ray(scattered, depth+1), attenuation))
     else
       return emitted
     end
@@ -69,26 +105,26 @@ local function trace_rays() !noinline
       ## if symbols.NUMSAMPLES.attr.value:tonumber() == 1 then
         local v, u
         ## if DENOISER then
-          v, u = (y + frand() - 0.5) / @float(SCREEN_HEIGHT), (x + frand() - 0.5) / @float(SCREEN_WIDTH)
+          v, u = (y + math.random() - 0.5) / @float(SCREEN_HEIGHT), (x + math.random() - 0.5) / @float(SCREEN_WIDTH)
         ## else
           v, u =  y / @float(SCREEN_HEIGHT), x / @float(SCREEN_WIDTH)
         ## end
-        local col = trace_ray(Camera_getray(cam, u, v), 0)
+        local col = trace_ray(Camera.getray(cam, u, v), 0)
       ## else
         local col: vec3
         for i=1,NUMSAMPLES do
-          local v, u = (y + frand() - 0.5) / @float(SCREEN_HEIGHT), (x + frand() - 0.5) / @float(SCREEN_WIDTH)
-          col = vec3_add(col, trace_ray(Camera_getray(cam, u, v), 0))
+          local v, u = (y + math.random() - 0.5) / @float(SCREEN_HEIGHT), (x + math.random() - 0.5) / @float(SCREEN_WIDTH)
+          col = vec3.add(col, trace_ray(Camera.getray(cam, u, v), 0))
         end
-        col = vec3_sdiv(col, NUMSAMPLES)
+        col = vec3.sdiv(col, NUMSAMPLES)
       ## end
-      col = vec3_sqrt(col) -- gamma correction
-      col = vec3_min(col, vec3{1,1,1})
+      col = vec3.sqrt(col) -- gamma correction
+      col = vec3.min(col, vec3{1,1,1})
       ## if DENOISER then
-        tempixels[y][x] = vec3_add(tempixels[y][x], col)
-        pixels[yoff - y][x] = argbcolor_fromvec3(vec3_sdiv(tempixels[y][x], ntem))
+        tempixels[y][x] = vec3.add(tempixels[y][x], col)
+        pixels[yoff - y][x] = argbcolor.fromvec3(vec3.sdiv(tempixels[y][x], ntem))
       ## else
-        pixels[yoff - y][x] = argbcolor_fromvec3(col)
+        pixels[yoff - y][x] = argbcolor.fromvec3(col)
       ## end
     end
   end
@@ -110,34 +146,34 @@ local function poll_events() !noinline
       local kevent = @SDL_KeyboardEvent*(&event)
       switch kevent.keysym.sym
       case SDLK_UP then
-        Camera_rotate(cam, 0.1, 0)
+        cam:rotate(0.1, 0)
         refresh()
       case SDLK_DOWN then
-        Camera_rotate(cam, -0.1, 0)
+        cam:rotate(-0.1, 0)
         refresh()
       case SDLK_RIGHT then
-        Camera_rotate(cam, 0, -0.1)
+        cam:rotate(0, -0.1)
         refresh()
       case SDLK_LEFT then
-        Camera_rotate(cam, 0, 0.1)
+        cam:rotate(0, 0.1)
         refresh()
       case SDLK_w then
-        Camera_translate(cam, 0, 0, 0.1)
+        cam:translate(0, 0, 0.1)
         refresh()
       case SDLK_s then
-        Camera_translate(cam, 0, 0, -0.1)
+        cam:translate(0, 0, -0.1)
         refresh()
       case SDLK_a then
-        Camera_translate(cam, -0.1, 0, 0)
+        cam:translate(-0.1, 0, 0)
         refresh()
       case SDLK_d then
-        Camera_translate(cam, 0.1, 0, 0)
+        cam:translate(0.1, 0, 0)
         refresh()
       case SDLK_e then
-        Camera_translate(cam, 0, 0.1, 0)
+        cam:translate(0, 0.1, 0)
         refresh()
       case SDLK_q then
-        Camera_translate(cam, 0, -0.1, 0)
+        cam:translate(0, -0.1, 0)
         refresh()
       end
     end
@@ -171,13 +207,13 @@ local function world_init()
   local compconst NUMSPHERES = 1
   for a=-NUMSPHERES,<NUMSPHERES do
     for b=-NUMSPHERES,<NUMSPHERES do
-      local choosemat = frand()
-      local center = vec3{a+0.9*frand(), 0.2, b+0.9*frand()}
-      if vec3_length(vec3_sub(center, vec3{4,0.2,0})) > 0.9 then
+      local choosemat = math.random()
+      local center = vec3{a+0.9*math.random(), 0.2, b+0.9*math.random()}
+      if vec3.length(vec3.sub(center, vec3{4,0.2,0})) > 0.9 then
         if choosemat < 0.8 then --diffuse
-          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.COLOR, {frand()*frand(), frand()*frand(), frand()*frand()}}}}
+          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.COLOR, {math.random()*math.random(), math.random()*math.random(), math.random()*math.random()}}}}
         elseif choosemat < 0.95 then -- metal
-          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.5*(1+frand()), 0.5*(1+frand()), 0.5*(1+frand())}}, fuzz=0.5*frand()}}
+          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.5*(1+math.random()), 0.5*(1+math.random()), 0.5*(1+math.random())}}, fuzz=0.5*math.random()}}
         else -- glass
           world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.DIELECTRIC, fuzz=1.5}}
         end
@@ -194,12 +230,12 @@ local function world_init()
   local aspect = SCREEN_WIDTH/@float(SCREEN_HEIGHT)
   local aperture: float = 0--0.1
   local focusdist: float = 10
-  cam = Camera_create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)
+  cam = Camera.create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)
 end
 
 local function go()
   world_init()
-  window = Window_create(SCREEN_WIDTH, SCREEN_HEIGHT)
+  window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT)
 
   -- draw
   local lastticks = SDL_GetTicks()
@@ -214,11 +250,11 @@ local function go()
 
     local quit = not poll_events()
     trace_rays()
-    Window_uploadpixels(window, &pixels[0][0])
+    Window.uploadpixels(window, &pixels[0][0])
     fps = fps + 1
   until quit
 
-  Window_destroy(window)
+  Window.destroy(window)
 end
 
 go()

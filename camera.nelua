@@ -1,5 +1,4 @@
-
-local Camera = @record{
+global Camera = @record{
   lower_left_corner: vec3,
   lower_left_corner_direction: vec3,
   horizontal: vec3,
@@ -18,26 +17,26 @@ local Camera = @record{
   hasaperture: boolean
 }
 
-local function Camera_update(self: Camera*)
-  local theta = self.vfov*math_pi/180
-  local half_height = math_tan(theta/2)
+function Camera:update()
+  local theta = self.vfov*math.pi/180
+  local half_height = math.tan(theta/2)
   local half_width = self.aspect * half_height
-  self.w = vec3_unit(vec3_sub(self.origin, self.lookat))
-  self.u = vec3_unit(vec3_cross(self.vup, self.w))
-  self.v = vec3_cross(self.w, self.u)
-  self.lower_left_corner = vec3_sub(self.origin,
-    vec3_add(vec3_add(vec3_smul(self.u, half_width*self.focusdist),
-                      vec3_smul(self.v, half_height*self.focusdist)),
-             vec3_smul(self.w, self.focusdist)))
-  self.lower_left_corner_direction = vec3_sub(self.lower_left_corner, self.origin)
-  self.horizontal = vec3_smul(self.u, 2*half_width*self.focusdist)
-  self.vertical = vec3_smul(self.v, 2*half_height*self.focusdist)
+  self.w = vec3.unit(vec3.sub(self.origin, self.lookat))
+  self.u = vec3.unit(vec3.cross(self.vup, self.w))
+  self.v = vec3.cross(self.w, self.u)
+  self.lower_left_corner = vec3.sub(self.origin,
+    vec3.add(vec3.add(vec3.smul(self.u, half_width*self.focusdist),
+                      vec3.smul(self.v, half_height*self.focusdist)),
+             vec3.smul(self.w, self.focusdist)))
+  self.lower_left_corner_direction = vec3.sub(self.lower_left_corner, self.origin)
+  self.horizontal = vec3.smul(self.u, 2*half_width*self.focusdist)
+  self.vertical = vec3.smul(self.v, 2*half_height*self.focusdist)
   self.lensradius = self.aperture / 2
   self.hasaperture = self.aperture > 0
 end
 
-local function Camera_create(lookfrom: vec3, lookat: vec3, vup: vec3,
-                             vfov: float, aspect: float, aperture: float, focusdist: float): Camera
+function Camera.create(lookfrom: vec3, lookat: vec3, vup: vec3,
+                       vfov: float, aspect: float, aperture: float, focusdist: float): Camera
   if aperture == 0 then
     focusdist = 1
   end
@@ -50,38 +49,38 @@ local function Camera_create(lookfrom: vec3, lookat: vec3, vup: vec3,
     focusdist = focusdist,
     aperture = aperture
   }
-  Camera_update(self)
+  self:update()
   return self
 end
 
-local function Camera_getray(self: Camera*, u: float, v: float)
+function Camera:getray(u: float, v: float)
   local r: Ray
   if self.hasaperture then
-    local rd = vec3_random_in_disk(self.lensradius)
-    local offset = vec3_add(vec3_smul(self.u, rd.x), vec3_smul(self.v, rd.y))
-    r.origin = vec3_add(self.origin, offset)
-    r.direction = vec3_sub(vec3_add(self.lower_left_corner, vec3_add(vec3_smul(self.horizontal, u), vec3_smul(self.vertical, v))), r.origin)
+    local rd = vec3.random_in_disk(self.lensradius)
+    local offset = vec3.add(vec3.smul(self.u, rd.x), vec3.smul(self.v, rd.y))
+    r.origin = vec3.add(self.origin, offset)
+    r.direction = vec3.sub(vec3.add(self.lower_left_corner, vec3.add(vec3.smul(self.horizontal, u), vec3.smul(self.vertical, v))), r.origin)
   else
     r.origin = self.origin
-    r.direction = vec3_add(self.lower_left_corner_direction, vec3_add(vec3_smul(self.horizontal, u), vec3_smul(self.vertical, v)))
+    r.direction = vec3.add(self.lower_left_corner_direction, vec3.add(vec3.smul(self.horizontal, u), vec3.smul(self.vertical, v)))
   end
   return r
 end
 
-local function Camera_rotate(self: Camera*, x: float, y: float)
-  local dir = vec3_sub(self.lookat, self.origin)
-  dir = vec3_rotvec(dir, self.u, x)
-  dir = vec3_rotvec(dir, self.v, y)
-  self.lookat = vec3_add(self.origin, dir)
-  Camera_update(self)
+function Camera:rotate(x: float, y: float)
+  local dir = vec3.sub(self.lookat, self.origin)
+  dir = vec3.rotvec(dir, self.u, x)
+  dir = vec3.rotvec(dir, self.v, y)
+  self.lookat = vec3.add(self.origin, dir)
+  self:update()
 end
 
-local function Camera_translate(self: Camera*, x: float, y: float, z: float)
+function Camera:translate(x: float, y: float, z: float)
   local trans = vec3{0,0,0}
-  trans = vec3_add(trans, vec3_smul(self.u, x))
-  trans = vec3_add(trans, vec3_smul(self.w,-z))
-  trans = vec3_add(trans, vec3_smul(self.v, y))
-  self.origin = vec3_add(self.origin, trans)
-  self.lookat = vec3_add(self.lookat, trans)
-  Camera_update(self)
+  trans = vec3.add(trans, vec3.smul(self.u, x))
+  trans = vec3.add(trans, vec3.smul(self.w,-z))
+  trans = vec3.add(trans, vec3.smul(self.v, y))
+  self.origin = vec3.add(self.origin, trans)
+  self.lookat = vec3.add(self.lookat, trans)
+  self:update()
 end

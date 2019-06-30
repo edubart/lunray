@@ -1,11 +1,15 @@
-local argbcolor = @record{
+global argbcolor = @record{
   b: byte,
   g: byte,
   r: byte,
   a: byte
 }
 
-local Window = @record {
+function argbcolor.fromvec3(col: vec3): argbcolor
+  return argbcolor{@uint8(col.z*255), @uint8(col.y*255), @uint8(col.x*255), 255}
+end
+
+global Window = @record {
   window: SDL_WindowPtr,
   renderer: SDL_RendererPtr,
   texture: SDL_TexturePtr,
@@ -14,7 +18,7 @@ local Window = @record {
   pitch: cint
 }
 
-local function Window_create(width: integer, height: integer): Window
+function Window.create(width: integer, height: integer): Window
   SDL_Init(SDL_INIT_VIDEO)
 
   local window = SDL_CreateWindow("An SDL2 Window",
@@ -32,19 +36,15 @@ local function Window_create(width: integer, height: integer): Window
   return Window{window, renderer, texture, width, height, @cint(width*4)}
 end
 
-local function Window_destroy(self: Window*)
+function Window.destroy(self: Window*)
   SDL_DestroyTexture(self.texture)
   SDL_DestroyRenderer(self.renderer)
   SDL_DestroyWindow(self.window)
   SDL_Quit()
 end
 
-local function Window_uploadpixels(self: Window*, pixels: argbcolor*)
+function Window.uploadpixels(self: Window*, pixels: argbcolor*)
   SDL_UpdateTexture(self.texture, nilptr, pixels, self.pitch)
   SDL_RenderCopy(self.renderer, self.texture, nilptr, nilptr)
   SDL_RenderPresent(self.renderer)
-end
-
-local function argbcolor_fromvec3(col: vec3): argbcolor
-  return argbcolor{@uint8(col.z*255), @uint8(col.y*255), @uint8(col.x*255), 255}
 end

@@ -1,116 +1,115 @@
-
-local vec3 !aligned(16) = @record{
+global vec3 !aligned(16) = @record{
   x: float,
   y: float,
   z: float
 }
 
-local function vec3_add(a: vec3, b: vec3): vec3
+function vec3.add(a: vec3, b: vec3): vec3
   return vec3{a.x+b.x, a.y+b.y, a.z+b.z}
 end
 
-local function vec3_mul(a: vec3, b: vec3): vec3
+function vec3.mul(a: vec3, b: vec3): vec3
   return vec3{a.x*b.x, a.y*b.y, a.z*b.z}
 end
 
-local function vec3_addmul(a: vec3, b: vec3, factor: float): vec3
+function vec3.addmul(a: vec3, b: vec3, factor: float): vec3
   return vec3{a.x+factor*b.x, a.y+factor*b.y, a.z+factor*b.z}
 end
 
-local function vec3_sub(a: vec3, b: vec3): vec3
+function vec3.sub(a: vec3, b: vec3): vec3
   return vec3{a.x-b.x, a.y-b.y, a.z-b.z}
 end
 
-local function vec3_min(a: vec3, b: vec3): vec3
-  return vec3{math_min(a.x, b.x), math_min(a.y, b.y), math_min(a.z, b.z)}
+function vec3.min(a: vec3, b: vec3): vec3
+  return vec3{math.min(a.x, b.x), math.min(a.y, b.y), math.min(a.z, b.z)}
 end
 
-local function vec3_neg(a: vec3): vec3
+function vec3.neg(a: vec3): vec3
   return vec3{-a.x, -a.y, -a.z}
 end
 
-local function vec3_dot(a: vec3, b: vec3): float
+function vec3.dot(a: vec3, b: vec3): float
   return a.x*b.x + a.y*b.y + a.z*b.z
 end
 
-local function vec3_cross(a: vec3, b: vec3): vec3
+function vec3.cross(a: vec3, b: vec3): vec3
   return vec3{a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x}
 end
 
-local function vec3_sqrt(a: vec3): vec3
-  return vec3{math_sqrt(a.x), math_sqrt(a.y), math_sqrt(a.z)}
+function vec3.sqrt(a: vec3): vec3
+  return vec3{math.sqrt(a.x), math.sqrt(a.y), math.sqrt(a.z)}
 end
 
-local function vec3_smul(a: vec3, factor: float): vec3
+function vec3.smul(a: vec3, factor: float): vec3
   return vec3{a.x*factor, a.y*factor, a.z*factor}
 end
 
-local function vec3_sdiv(a: vec3, factor: float): vec3
+function vec3.sdiv(a: vec3, factor: float): vec3
   local k = 1 / factor
   return vec3{a.x*k, a.y*k, a.z*k}
 end
 
-local function vec3_squaredlength(v: vec3): float
+function vec3.squaredlength(v: vec3): float
   return v.x*v.x + v.y*v.y + v.z*v.z
 end
 
-local function vec3_length(v: vec3): float
-  return math_sqrt(vec3_squaredlength(v))
+function vec3.length(v: vec3): float
+  return math.sqrt(vec3.squaredlength(v))
 end
 
-local function vec3_unit(v: vec3): vec3
-  return vec3_sdiv(v, vec3_length(v))
+function vec3.unit(v: vec3): vec3
+  return vec3.sdiv(v, vec3.length(v))
 end
 
-local function vec3_lerp(a: vec3, b: vec3, t: float): vec3
-  return vec3_add(vec3_smul(a, 1-t), vec3_smul(b, t))
+function vec3.lerp(a: vec3, b: vec3, t: float): vec3
+  return vec3.add(vec3.smul(a, 1-t), vec3.smul(b, t))
 end
 
-local function vec3_print(v: vec3)
+function vec3.print(v: vec3)
   print(v.x, v.y, v.z)
 end
 
-local function vec3_rotvec(v: vec3, axis: vec3, theta: float): vec3
-  local n = vec3_unit(axis)
-  local w = vec3_cross(n, v)
-  local sint, cost = math_sin(theta), math_cos(theta)
-  local ns = vec3_dot(v, n) * (1 - cost)
-  return vec3_add(vec3_smul(n, ns), vec3_add(vec3_smul(w, sint), vec3_smul(v, cost)))
+function vec3.rotvec(v: vec3, axis: vec3, theta: float): vec3
+  local n = vec3.unit(axis)
+  local w = vec3.cross(n, v)
+  local sint, cost = math.sin(theta), math.cos(theta)
+  local ns = vec3.dot(v, n) * (1 - cost)
+  return vec3.add(vec3.smul(n, ns), vec3.add(vec3.smul(w, sint), vec3.smul(v, cost)))
 end
 
-local function random_in_unit_sphere(): vec3
+function random_in_unit_sphere(): vec3
   local p: vec3
   repeat
-    p = vec3_sub(vec3_smul(vec3{frand(), frand(), frand()}, 2), vec3{1,1,1})
-  until vec3_squaredlength(p) < 1 and vec3_squaredlength(p) > 0.1
+    p = vec3.sub(vec3.smul(vec3{math.random(), math.random(), math.random()}, 2), vec3{1,1,1})
+  until vec3.squaredlength(p) < 1 and vec3.squaredlength(p) > 0.1
   return p
 end
 
-local function vec3_random_in_disk(length: float): vec3
-  local theta = frand()*math_pi*2
-  local sint, cost = math_sin(theta), math_cos(theta)
-  local rlen = math_sqrt(frand())*length
+function vec3.random_in_disk(length: float): vec3
+  local theta = math.random()*math.pi*2
+  local sint, cost = math.sin(theta), math.cos(theta)
+  local rlen = math.sqrt(math.random())*length
   return vec3{rlen*cost, rlen*sint, 0}
 end
 
-local function vec3_random_in_hemisphere(n: vec3)
-  local theta, len = frand()*2*math_pi, frand()
+function vec3.random_in_hemisphere(n: vec3)
+  local theta, len = math.random()*2*math.pi, math.random()
   local w
-  if math_abs(n.y) > 0.5 then
+  if math.abs(n.y) > 0.5 then
     w = vec3{1,0,0}
   else
     w = vec3{0,1,0}
   end
-  local u = vec3_unit(vec3_cross(n, w))
-  local v = vec3_cross(u, n)
-  local sint, cost = math_sin(theta), math_cos(theta)
-  local r = math_sqrt(len)
-  local rx, ry, rz = r*cost, r*sint, math_sqrt(1 - len)
-  local rr = vec3_add(vec3_add(vec3_smul(u, rx), vec3_smul(v, ry)), vec3_smul(n,rz))
-  return vec3_unit(rr)
+  local u = vec3.unit(vec3.cross(n, w))
+  local v = vec3.cross(u, n)
+  local sint, cost = math.sin(theta), math.cos(theta)
+  local r = math.sqrt(len)
+  local rx, ry, rz = r*cost, r*sint, math.sqrt(1 - len)
+  local rr = vec3.add(vec3.add(vec3.smul(u, rx), vec3.smul(v, ry)), vec3.smul(n,rz))
+  return vec3.unit(rr)
 end
 
-local vec2 !aligned(8) = @record{
+global vec2 !aligned(8) = @record{
   x: float,
   y: float
 }
