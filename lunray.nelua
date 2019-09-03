@@ -19,9 +19,7 @@ _G.DENOISER = true
 --TODO: optional type
 --TODO: remove !! pragmas and use preprocessor instead
 
-global float = @float64
-global int = @int64
-
+require 'basetypes'
 require 'math'
 require 'vec3'
 require 'mat4'
@@ -34,10 +32,10 @@ require 'sphere'
 require 'camera'
 require 'window'
 
-local compconst SCREEN_WIDTH = 960--480
-local compconst SCREEN_HEIGHT = 540--270
-local compconst NUMSAMPLES = 1
-local compconst MAXDEPTH = 16
+local SCREEN_WIDTH !compconst = 960--480
+local SCREEN_HEIGHT !compconst = 540--270
+local NUMSAMPLES !compconst = 1
+local MAXDEPTH !compconst = 16
 
 local worldsize
 local Hitlist = @Sphere[500]
@@ -157,6 +155,8 @@ local function poll_events() !noinline
       case SDLK_LEFT then
         cam:rotate(0, 0.1)
         refresh()
+      case SDLK_ESCAPE then
+        return false
       case SDLK_w then
         cam:translate(0, 0, 0.1)
         refresh()
@@ -204,7 +204,7 @@ local function world_init()
   world[4] = Sphere{center={ 4,    1,0}, radius=1, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.7, 0.6, 0.5}}}}
 
   local i = 5
-  local compconst NUMSPHERES = 1
+  local NUMSPHERES !compconst = 1
   for a=-NUMSPHERES,<NUMSPHERES do
     for b=-NUMSPHERES,<NUMSPHERES do
       local choosemat = math.random()
