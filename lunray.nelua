@@ -1,7 +1,7 @@
 --## strict = true
 
 -- optimize for performance
-!!cflags '-O3 -ffast-math -march=native -fno-plt -fopenmp -rdynamic -g'
+## cflags '-O3 -ffast-math -march=native -fno-plt -fopenmp -rdynamic -g'
 
 [##[
 modname = 'lunray'
@@ -17,7 +17,6 @@ _G.DENOISER = true
 --TODO: math library
 --TODO: evaluate const numeric expressions
 --TODO: optional type
---TODO: remove !! pragmas and use preprocessor instead
 
 require 'basetypes'
 require 'math'
@@ -97,7 +96,7 @@ local function trace_rays() !noinline
     ntem = ntem + 1
   ## end
   local yoff = window.height - 1
-  !!cemit '#pragma omp parallel for schedule(dynamic)'
+  ## cemit '#pragma omp parallel for schedule(dynamic)'
   for y=0,<SCREEN_HEIGHT do
     for x=0,<SCREEN_WIDTH do
       ## if symbols.NUMSAMPLES.attr.value:tonumber() == 1 then
