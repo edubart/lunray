@@ -1,11 +1,11 @@
---!!strict
+--## strict = true
 
 -- optimize for performance
 !!cflags '-O3 -ffast-math -march=native -fno-plt -fopenmp -rdynamic -g'
 
 [##[
-state.modname = 'lunray'
-state.nohashcodenames = true
+modname = 'lunray'
+nohashcodenames = true
 _G.CARTOONIZED = false
 _G.DENOISER = true
 ]##]
