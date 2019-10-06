@@ -1,4 +1,4 @@
-global PERLIN_SIZE !compconst = 256
+global PERLIN_SIZE <compconst> = 256
 
 global Perlin = @record{}
 

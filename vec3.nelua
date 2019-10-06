@@ -1,4 +1,4 @@
-global vec3 !aligned(16) = @record{
+global vec3 <aligned(16)> = @record{
   x: float,
   y: float,
   z: float
@@ -109,7 +109,7 @@ function vec3.random_in_hemisphere(n: vec3)
   return vec3.unit(rr)
 end
 
-global vec2 !aligned(8) = @record{
+global vec2 <aligned(8)> = @record{
   x: float,
   y: float
 }

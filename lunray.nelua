@@ -31,19 +31,19 @@ require 'sphere'
 require 'camera'
 require 'window'
 
-local SCREEN_WIDTH !compconst = 960--480
-local SCREEN_HEIGHT !compconst = 540--270
-local NUMSAMPLES !compconst = 1
-local MAXDEPTH !compconst = 16
+local SCREEN_WIDTH <compconst> = 960--480
+local SCREEN_HEIGHT <compconst> = 540--270
+local NUMSAMPLES <compconst> = 1
+local MAXDEPTH <compconst> = 16
 
 local worldsize
 local Hitlist = @array(Sphere,500)
 local world: Hitlist
 local cam: Camera
 local window: Window
-local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] !aligned(16)
+local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 ## if DENOISER then
-local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT] !aligned(16)
+local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local ntem = 0
 ## end
 
@@ -67,7 +67,7 @@ local function sky_color(direction: vec3)
   return vec3.lerp(vec3{1,1,1}, vec3{0.5, 0.7, 1}, t)
 end
 
-local function trace_ray(r: Ray, depth: integer): vec3 !noinline
+local function trace_ray(r: Ray, depth: integer): vec3 <noinline>
   local hitted, rec = Hitlist_hit(world, r, 0.001, 1e32)
   if hitted then
     local emitted = Material.emitted(rec.mat, rec.uv, rec.p)
@@ -84,7 +84,7 @@ local function trace_ray(r: Ray, depth: integer): vec3 !noinline
   return sky_color(r.direction)
 end
 
-local function trace_rays() !noinline
+local function trace_rays() <noinline>
   ## if DENOISER then
     if ntem == 0 then
       for y=0,<SCREEN_HEIGHT do
@@ -133,7 +133,7 @@ local function refresh()
   ## end
 end
 
-local function poll_events() !noinline
+local function poll_events() <noinline>
   local event: SDL_Event
   while SDL_PollEvent(event) ~= 0 do
     switch event.type
@@ -203,7 +203,7 @@ local function world_init()
   world[4] = Sphere{center={ 4,    1,0}, radius=1, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.7, 0.6, 0.5}}}}
 
   local i = 5
-  local NUMSPHERES !compconst = 1
+  local NUMSPHERES <compconst> = 1
   for a=-NUMSPHERES,<NUMSPHERES do
     for b=-NUMSPHERES,<NUMSPHERES do
       local choosemat = math.random()
