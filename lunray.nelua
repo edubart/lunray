@@ -6,8 +6,8 @@
 [##[
 modname = 'lunray'
 nohashcodenames = true
-_G.CARTOONIZED = false
-_G.DENOISER = true
+CARTOONIZED = true
+DENOISER = true
 ]##]
 
 --TODO: multidimensional arrays shortcut swap?
@@ -37,7 +37,7 @@ local NUMSAMPLES !compconst = 1
 local MAXDEPTH !compconst = 16
 
 local worldsize
-local Hitlist = @Sphere[500]
+local Hitlist = @array(Sphere,500)
 local world: Hitlist
 local cam: Camera
 local window: Window

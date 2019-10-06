@@ -3,10 +3,10 @@ global PERLIN_SIZE !compconst = 256
 global Perlin = @record{}
 
 local perlin: record{
-  rands: vec3[PERLIN_SIZE],
-  permx: int[PERLIN_SIZE],
-  permy: int[PERLIN_SIZE],
-  permz: int[PERLIN_SIZE]
+  rands: array(vec3,PERLIN_SIZE),
+  permx: array(int,PERLIN_SIZE),
+  permy: array(int,PERLIN_SIZE),
+  permz: array(int,PERLIN_SIZE)
 }
 
 function Perlin.generate()
@@ -15,7 +15,7 @@ function Perlin.generate()
   end
 end
 
-function Perlin.permute(perm: int[PERLIN_SIZE]*)
+function Perlin.permute(perm: array(int,PERLIN_SIZE)*)
   for i=0,PERLIN_SIZE-1 do
     perm[i] = @int(i)
   end

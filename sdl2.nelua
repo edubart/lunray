@@ -27,7 +27,7 @@ global SDL_Surface = @record{
   pitch: cint,
   pixels: pointer
 }
-global SDL_Event = @record{type: uint32, padding: array<byte, 56>}
+global SDL_Event = @record{type: uint32, padding: array(byte, 56)}
 global SDL_Rect = @record{x: cint, y: cint, w: cint, h: cint}
 global SDL_WindowPtr = @record{}*
 global SDL_RendererPtr = @record{}*
