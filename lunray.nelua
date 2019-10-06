@@ -102,15 +102,15 @@ local function trace_rays() <noinline>
       ## if symbols.NUMSAMPLES.attr.value:tonumber() == 1 then
         local v, u
         ## if DENOISER then
-          v, u = (y + math.random() - 0.5) / @float(SCREEN_HEIGHT), (x + math.random() - 0.5) / @float(SCREEN_WIDTH)
+          v, u = (y + math.random() - 0.5) / (@float)(SCREEN_HEIGHT), (x + math.random() - 0.5) / (@float)(SCREEN_WIDTH)
         ## else
-          v, u =  y / @float(SCREEN_HEIGHT), x / @float(SCREEN_WIDTH)
+          v, u =  y / (@float)(SCREEN_HEIGHT), x / (@float)(SCREEN_WIDTH)
         ## end
         local col = trace_ray(Camera.getray(cam, u, v), 0)
       ## else
         local col: vec3
         for i=1,NUMSAMPLES do
-          local v, u = (y + math.random() - 0.5) / @float(SCREEN_HEIGHT), (x + math.random() - 0.5) / @float(SCREEN_WIDTH)
+          local v, u = (y + math.random() - 0.5) / (@float)(SCREEN_HEIGHT), (x + math.random() - 0.5) / (@float)(SCREEN_WIDTH)
           col = vec3.add(col, trace_ray(Camera.getray(cam, u, v), 0))
         end
         col = vec3.sdiv(col, NUMSAMPLES)
@@ -140,7 +140,7 @@ local function poll_events() <noinline>
     case SDL_QUIT then
       return false
     case SDL_KEYDOWN then
-      local kevent = @SDL_KeyboardEvent*(&event)
+      local kevent = (@SDL_KeyboardEvent*)(&event)
       switch kevent.keysym.sym
       case SDLK_UP then
         cam:rotate(0.1, 0)
@@ -226,7 +226,7 @@ local function world_init()
   local lookat = vec3{0,1,0}
   local vup = vec3{0,1,0}
   local vfov = 59
-  local aspect = SCREEN_WIDTH/@float(SCREEN_HEIGHT)
+  local aspect = SCREEN_WIDTH/(@float)(SCREEN_HEIGHT)
   local aperture: float = 0--0.1
   local focusdist: float = 10
   cam = Camera.create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)

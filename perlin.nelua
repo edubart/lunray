@@ -17,10 +17,10 @@ end
 
 function Perlin.permute(perm: array(int,PERLIN_SIZE)*)
   for i=0,PERLIN_SIZE-1 do
-    perm[i] = @int(i)
+    perm[i] = (@int)(i)
   end
   for i=PERLIN_SIZE-1,1,-1 do
-    local target = @int(math.random()*(i+1))
+    local target = (@int)(math.random()*(i+1))
     perm[i], perm[target] = perm[target], perm[i]
   end
 end
@@ -45,7 +45,7 @@ end
 
 function Perlin.noise(p: vec3): float
   local u, v, w = p.x - math.floor(p.x), p.y - math.floor(p.y), p.z - math.floor(p.z)
-  local pi, pj, pk = @int(math.floor(p.x)), @int(math.floor(p.y)), @int(math.floor(p.z))
+  local pi, pj, pk = (@int)(math.floor(p.x)), (@int)(math.floor(p.y)), (@int)(math.floor(p.z))
   local c: vec3[2][2][2]
   for i=0,1 do
     for j=0,1 do
