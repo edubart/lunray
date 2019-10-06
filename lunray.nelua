@@ -14,7 +14,6 @@ DENOISER = true
 --TODO: record field aliases
 --TODO: record operators
 --TODO: record overloading
---TODO: math library
 --TODO: evaluate const numeric expressions
 --TODO: optional type
 
@@ -47,7 +46,7 @@ local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local ntem = 0
 ## end
 
-local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: float, tmax: float): boolean, Hit
+local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: float, tmax: float): (boolean, Hit)
   local rec: Hit
   local tnear = tmax
   local hashit = false

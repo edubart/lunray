@@ -23,7 +23,7 @@ function reflect(v: vec3, n: vec3): vec3
   return vec3.sub(v, vec3.smul(n, 2*vec3.dot(v,n)))
 end
 
-function refract(v: vec3, n: vec3, ni: float): boolean, vec3
+function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
   local uv = vec3.unit(v)
   local dt = vec3.dot(uv, n)
   local discriminant = 1 - ni*ni*(1-dt*dt)
@@ -43,7 +43,7 @@ function schlick(cosine: float, refidx: float): float
   return r0 + (1-r0)*((1-cosine)^5)
 end
 
-function Material:lambertian_scatter(r: Ray, rec: Hit): boolean, vec3, Ray
+function Material:lambertian_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   local scattered = Ray{rec.p}
   ## if CARTOONIZED then
     scattered.direction = vec3{0,1,0}
@@ -53,7 +53,7 @@ function Material:lambertian_scatter(r: Ray, rec: Hit): boolean, vec3, Ray
   return true, self.albedo:color(rec.uv, rec.p), scattered
 end
 
-function Material:metal_scatter(r: Ray, rec: Hit): boolean, vec3, Ray
+function Material:metal_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   local reflected = reflect(vec3.unit(r.direction), rec.normal)
   ## if not CARTOONIZED then
     if self.fuzz > 0 then
@@ -65,7 +65,7 @@ function Material:metal_scatter(r: Ray, rec: Hit): boolean, vec3, Ray
   return forward, self.albedo:color(rec.uv, rec.p), scattered
 end
 
-function Material:dielectric_scatter(r: Ray, rec: Hit): boolean, vec3, Ray
+function Material:dielectric_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   local outward_normal: vec3
   local ni: float, reflectprob: float
   local cosine = vec3.dot(r.direction, rec.normal) / vec3.length(r.direction)
@@ -97,7 +97,7 @@ function Material:dielectric_scatter(r: Ray, rec: Hit): boolean, vec3, Ray
   return true, vec3{1,1,1}, scattered
 end
 
-function Material.scatter(self: Material*, r: Ray, rec: Hit): boolean, vec3, Ray
+function Material.scatter(self: Material*, r: Ray, rec: Hit): (boolean, vec3, Ray)
   switch self.kind
   case MATERIALS.LAMBERTIAN then
     return self:lambertian_scatter(r, rec)
