@@ -10,9 +10,9 @@ function argbcolor.fromvec3(col: vec3): argbcolor
 end
 
 global Window = @record {
-  window: SDL_WindowPtr,
-  renderer: SDL_RendererPtr,
-  texture: SDL_TexturePtr,
+  window: SDL_Window*,
+  renderer: SDL_Renderer*,
+  texture: SDL_Texture*,
   width: integer,
   height: integer,
   pitch: cint

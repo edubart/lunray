@@ -6,7 +6,7 @@
 [##[
 modname = 'lunray'
 nohashcodenames = true
-CARTOONIZED = true
+CARTOONIZED = false
 DENOISER = true
 ]##]
 
