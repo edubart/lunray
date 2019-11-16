@@ -1,5 +1,5 @@
 global Ray = @record{origin: vec3, direction: vec3}
 
-function Ray.pointat(r: Ray, t: float): vec3
-  return vec3.addmul(r.origin, r.direction, t)
+function Ray:pointat(t: float): vec3
+  return vec3.addmul(self.origin, self.direction, t)
 end

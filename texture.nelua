@@ -10,11 +10,11 @@ global Texture = @record {
   scale: float
 }
 
-function Texture.color_color(self: Texture*, uv: vec2, p: vec3): vec3
+function Texture:color_color(uv: vec2, p: vec3): vec3
   return self.color
 end
 
-function Texture.checker_color(self: Texture*, uv: vec2, p: vec3): vec3
+function Texture:checker_color(uv: vec2, p: vec3): vec3
   local sines = math.sin(10*p.x)*math.sin(10*p.y)*math.sin(10*p.z)
   if sines < 0 then
     return vec3{1,1,1}
@@ -23,7 +23,7 @@ function Texture.checker_color(self: Texture*, uv: vec2, p: vec3): vec3
   end
 end
 
-function Texture.noise_color(self: Texture*, uv: vec2, p: vec3): vec3
+function Texture:noise_color(uv: vec2, p: vec3): vec3
   local ticks: float = SDL_GetTicks() / 10000
   local offset = vec3{ticks, ticks, ticks}
   local noise = Perlin.turb(vec3.smul(vec3.add(p, offset), self.scale), 1)
@@ -32,7 +32,7 @@ function Texture.noise_color(self: Texture*, uv: vec2, p: vec3): vec3
   return vec3.smul(self.color, noise)
 end
 
-function Texture.color(self: Texture*, uv: vec2, p: vec3): vec3
+function Texture:color(uv: vec2, p: vec3): vec3
   switch self.kind
   case TEXTURES.COLOR then
     return Texture.color_color(self, uv, p)

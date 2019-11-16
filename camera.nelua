@@ -14,7 +14,6 @@ global Camera = @record{
   aspect: float,
   aperture: float,
   focusdist: float,
-  hasaperture: boolean
 }
 
 function Camera:update()
@@ -32,7 +31,6 @@ function Camera:update()
   self.horizontal = vec3.smul(self.u, 2*half_width*self.focusdist)
   self.vertical = vec3.smul(self.v, 2*half_height*self.focusdist)
   self.lensradius = self.aperture / 2
-  self.hasaperture = self.aperture > 0
 end
 
 function Camera.create(lookfrom: vec3, lookat: vec3, vup: vec3,
@@ -55,7 +53,7 @@ end
 
 function Camera:getray(u: float, v: float)
   local r: Ray
-  if self.hasaperture then
+  if self.aperture ~= 0 then
     local rd = vec3.random_in_disk(self.lensradius)
     local offset = vec3.add(vec3.smul(self.u, rd.x), vec3.smul(self.v, rd.y))
     r.origin = vec3.add(self.origin, offset)

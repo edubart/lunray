@@ -64,7 +64,7 @@ global function SDL_DestroyWindow(window: SDL_Window*) <cimport> end
 global function SDL_PollEvent(event: SDL_Event*): int32 <cimport> end
 global function SDL_GetTicks(): uint32 <cimport> end
 global function SDL_Delay(ms: uint32) <cimport> end
-global function SDL_CreateRGBSurfaceWithFormatFrom(pixels: pointer, width: cint,height: cint, depth: cint, pitch: cint,format: uint32): SDL_Surface <cimport> end
+global function SDL_CreateRGBSurfaceWithFormatFrom(pixels: pointer, width: cint, height: cint, depth: cint, pitch: cint,format: uint32): SDL_Surface <cimport> end
 global function SDL_FreeSurface(surface: SDL_Surface) <cimport> end
 global function SDL_LockSurface(surface: SDL_Surface) <cimport> end
 global function SDL_GetWindowSurface(window: SDL_Window*): SDL_Surface <cimport> end

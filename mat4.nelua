@@ -13,7 +13,7 @@ local function mat4_add(A: mat4, B: mat4): mat4
   local R: mat4
   ## for i=0,3 do
     ## for j=0,3 do
-      R[#[i]][#[j]] = A[#[i]][#[j]] + B[#[i]][#[j]]
+      R[#[i]#][#[j]#] = A[#[i]#][#[j]#] + B[#[i]#][#[j]#]
     ## end
   ## end
   return R
@@ -23,7 +23,7 @@ local function mat4_sub(A: mat4, B: mat4): mat4 <inline>
   local R: mat4
   ## for i=0,3 do
     ## for j=0,3 do
-      R[#[i]][#[j]] = A[#[i]][#[j]] - B[#[i]][#[j]]
+      R[#[i]#][#[j]#] = A[#[i]#][#[j]#] - B[#[i]#][#[j]#]
     ## end
   ## end
   return R
@@ -33,7 +33,7 @@ local function mat4_transpose(A: mat4): mat4 <inline>
   local R: mat4
   ## for i=0,3 do
     ## for j=0,3 do
-      R[#[i]][#[j]] = A[#[j]][#[i]]
+      R[#[i]#][#[j]#] = A[#[j]#][#[i]#]
     ## end
   ## end
   return R
@@ -44,7 +44,7 @@ local function mat4_mul(A: mat4, B: mat4): mat4
   ## for i=0,3 do
     ## for j=0,3 do
       ## for k=0,3 do
-        C[#[i]][#[j]] = C[#[i]][#[j]] + A[#[i]][#[k]] * B[#[k]][#[j]]
+        C[#[i]#][#[j]#] = C[#[i]#][#[j]#] + A[#[i]#][#[k]#] * B[#[k]#][#[j]#]
       ## end
     ## end
   ## end
@@ -55,7 +55,7 @@ local function mat4_smul(A: mat4, x: float): mat4
   local R: mat4
   ## for i=0,3 do
     ## for j=0,3 do
-      R[#[i]][#[j]] = A[#[i]][#[j]] * x
+      R[#[i]#][#[j]#] = A[#[i]#][#[j]#] * x
     ## end
   ## end
   return R
@@ -63,6 +63,6 @@ end
 
 local function mat4_print(A: mat4)
   ## for i=0,3 do
-    print(A[#[i]][0], A[#[i]][1], A[#[i]][2], A[#[i]][3])
+    print(A[#[i]#][0], A[#[i]#][1], A[#[i]#][2], A[#[i]#][3])
   ## end
 end

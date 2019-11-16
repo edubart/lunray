@@ -97,7 +97,7 @@ function Material:dielectric_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   return true, vec3{1,1,1}, scattered
 end
 
-function Material.scatter(self: Material*, r: Ray, rec: Hit): (boolean, vec3, Ray)
+function Material:scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   switch self.kind
   case MATERIALS.LAMBERTIAN then
     return self:lambertian_scatter(r, rec)
@@ -109,6 +109,6 @@ function Material.scatter(self: Material*, r: Ray, rec: Hit): (boolean, vec3, Ra
   return false, vec3{}, Ray{}
 end
 
-function Material.emitted(self: Material*, uv: vec2, p: vec3): vec3
+function Material:emitted(uv: vec2, p: vec3): vec3
   return Texture.color(self.emitting, uv, p)
 end

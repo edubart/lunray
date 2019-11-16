@@ -13,7 +13,7 @@ function Sphere.get_uv(p: vec3): vec2
   }
 end
 
-function Sphere.hit(self: Sphere*, r: Ray, tmin: float, tmax: float): (boolean, Hit)
+function Sphere:hit(r: Ray, tmin: float, tmax: float): (boolean, Hit)
   local oc = vec3.sub(r.origin, self.center)
   local a = vec3.squaredlength(r.direction)
   local b = vec3.dot(oc, r.direction)
