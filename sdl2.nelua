@@ -36,6 +36,7 @@ global SDL_Texture <cimport> = @record{}
 -- import SDL constants
 global SDL_INIT_VIDEO: uint32 <cimport>
 global SDL_WINDOWPOS_UNDEFINED: cint <cimport>
+global SDL_WINDOW_RESIZABLE: uint32 <cimport>
 global SDL_WINDOW_OPENGL: uint32 <cimport>
 global SDL_QUIT: uint32 <cimport>
 global SDL_KEYDOWN: uint32 <cimport>

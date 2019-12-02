@@ -1,0 +1,125 @@
+--TODO: use compconst
+--TODO: use float32 (double speed)
+--TODO: generate only the needed C code
+--TODO: avoid typing <nosideeffect>
+
+## modname = sdf2d
+## strict = true
+## cflags '-O3 -march=native -ffast-math -fno-plt -fopenmp -rdynamic -g'
+
+## FLOAT32 = true
+## SCREEN_WIDTH = 960
+## SCREEN_HEIGHT = 540
+
+require 'math'
+require 'mathx'
+require 'vec2'
+require 'vec3'
+require 'argbcolor'
+require 'sdl2'
+require 'window'
+
+local pixels: argbcolor[#[SCREEN_WIDTH]#][#[SCREEN_HEIGHT]#] <aligned(16)>
+local iResolution <compconst> = vec2{#[SCREEN_WIDTH]#, #[SCREEN_HEIGHT]#}
+local iInvResolution <compconst> = vec2{#[1/SCREEN_WIDTH]#, #[1/SCREEN_HEIGHT]#}
+local iTime: float
+
+local function sd_circle(p: vec2, r: float): float
+  return vec2.length(p) - r
+end
+
+local function sd_vline(p: vec2, r: float): float
+  return mathx.abs(p.x) - r
+end
+
+local function sd_box(p: vec2, r: vec2): float
+  local d = vec2.sub(vec2.abs(p), r)
+  return vec2.length(vec2.max(d, vec2{0,0})) + mathx.min(mathx.max(d.x,d.y), 0.0)
+end
+
+local function map(p: vec2): float
+  local d: float
+  p = vec2.smul(p, 10.0)
+  d = sd_circle(vec2.sub(p, vec2{-10.0*mathx.fastsin(iTime),5.0}), 1.0)
+  d = mathx.min(d, sd_vline(vec2.sub(p, vec2{-5.0,5.0}), 1.0))
+  d = mathx.min(d, sd_box(vec2.sub(p, vec2{0.0,5.0}), vec2{2.0,2.0}))
+  d = d * (1.0/10.0)
+  return d
+end
+
+local function get_distance_field_color(d: float)
+  local outcolor <compconst> = vec3{0.9,0.6,0.3}
+  local incolor <compconst> = vec3{0.3,0.6,0.9}
+  local boundcolor <compconst> = vec3{1.0,1.0,1.0}
+  local linechange: float <compconst> = 0.2
+  local numlines: float <compconst> = 120.0
+  local linesmooth: float <compconst> = 0.5
+  local linestep = mathx.smoothstep(-linesmooth, linesmooth, mathx.fastsin(d*numlines))*2.0 - 1.0
+  local brightness = (1.0-linechange) + linechange*linestep
+  local decay = mathx.fastexp4(-mathx.abs(d))
+  local colfield = vec3.smul(vec3.lerp(incolor, outcolor, mathx.step(0.0, d)), brightness * decay)
+  local colbound = vec3.smul(boundcolor, mathx.fastexp4(-(numlines*0.5)*mathx.abs(d)))
+  return vec3.add(colfield, colbound)
+end
+
+local function main_image(fragcoord: vec2)
+  local uv = vec2.smul(vec2.sub(vec2.smul(fragcoord, 2.0), iResolution), iInvResolution.y)
+  local d = map(uv) * 1.0
+  local col = get_distance_field_color(d)
+  return col
+  --[[
+  local uv = vec2.div(fragcoord, iResolution)
+  local col = vec3.add(vec3{uv.x,uv.y,uv.x}, vec3{0,2,4})
+  col = vec3.eadd(col, iTime)
+  col = vec3{mathx.fastcos(col.x),mathx.fastcos(col.y),mathx.fastcos(col.z)}
+  col = vec3.smul(col, 0.5)
+  col = vec3.eadd(col, 0.5)
+  return col
+  ]]
+end
+
+local function draw()
+  ## cemit '#pragma omp parallel for schedule(dynamic)'
+  for y=0,<#[SCREEN_HEIGHT]# do
+    for x=0,<#[SCREEN_WIDTH]# do
+      local fragcolor = main_image(vec2{x,y})
+      pixels[#[SCREEN_HEIGHT-1]#-y][x] = argbcolor.fromvec3(fragcolor)
+    end
+  end
+end
+
+local function poll_events()
+  local event: SDL_Event
+  while SDL_PollEvent(event) ~= 0 do
+    switch event.type
+    case SDL_QUIT then
+      return false
+    end
+  end
+  return true
+end
+
+local function go()
+  local window = Window.create(#[SCREEN_WIDTH]#, #[SCREEN_HEIGHT]#)
+
+  local lastticks = SDL_GetTicks()
+  local fps = 0
+  repeat
+    local ticks = SDL_GetTicks()
+    iTime = ticks / 1000.0
+    if ticks - lastticks >= 1000 then
+      print('FPS', fps)
+      lastticks = ticks
+      fps = 0
+    end
+
+    local quit = not poll_events()
+    draw()
+    window:uploadpixels(&pixels[0][0])
+    fps = fps + 1
+  until quit
+
+  window:destroy()
+end
+
+go()

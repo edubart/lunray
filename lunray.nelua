@@ -8,6 +8,7 @@ modname = 'lunray'
 nohashcodenames = true
 CARTOONIZED = false
 DENOISER = true
+FLOAT32 = true
 ]##]
 
 --TODO: multidimensional arrays shortcut swap?
@@ -17,9 +18,11 @@ DENOISER = true
 --TODO: evaluate const numeric expressions
 --TODO: optional type
 
-require 'basetypes'
 require 'math'
+require 'mathx'
+require 'vec2'
 require 'vec3'
+require 'argbcolor'
 require 'mat4'
 require 'perlin'
 require 'sdl2'

@@ -1,0 +1,98 @@
+## strict = true
+
+global mathx = @record{}
+global int = @int64
+
+## if FLOAT64 then
+global float = @float64
+function mathx.abs(x: float): float <cimport 'fabs', nosideeffect> end
+function mathx.ceil(x: float): float <cimport 'ceil', nosideeffect> end
+function mathx.floor(x: float): float <cimport 'floor', nosideeffect> end
+function mathx.max(x: float, y: float): float <cimport 'fmax', nosideeffect> end
+function mathx.min(x: float, y: float): float <cimport 'fmin', nosideeffect> end
+function mathx.acos(x: float): float <cimport 'acos', nosideeffect> end
+function mathx.asin(x: float): float <cimport 'asin', nosideeffect> end
+function mathx.atan(x: float): float <cimport 'atan', nosideeffect> end
+function mathx.cos(x: float): float <cimport 'cos', nosideeffect> end
+function mathx.sin(x: float): float <cimport 'sin', nosideeffect> end
+function mathx.tan(x: float): float <cimport 'tan', nosideeffect> end
+function mathx.sqrt(x: float): float <cimport 'sqrt', nosideeffect> end
+function mathx.exp(x: float): float <cimport 'exp', nosideeffect> end
+function mathx.log(x: float): float <cimport 'log', nosideeffect> end
+function mathx.fmod(x: float, y: float): float <cimport 'fmod', nosideeffect> end
+function mathx.atan2(x: float, y: float): float <cimport 'atan2', nosideeffect> end
+global mathx.inf: float <const, cimport 'INFINITY'>
+## else
+global float = @float32
+function mathx.abs(x: float): float <cimport 'fabsf', nosideeffect> end
+function mathx.ceil(x: float): float <cimport 'ceilf', nosideeffect> end
+function mathx.floor(x: float): float <cimport 'floorf', nosideeffect> end
+function mathx.max(x: float, y: float): float <cimport 'fmaxf', nosideeffect> end
+function mathx.min(x: float, y: float): float <cimport 'fminf', nosideeffect> end
+function mathx.acos(x: float): float <cimport 'acosf', nosideeffect> end
+function mathx.asin(x: float): float <cimport 'asinf', nosideeffect> end
+function mathx.atan(x: float): float <cimport 'atanf', nosideeffect> end
+function mathx.cos(x: float): float <cimport 'cosf', nosideeffect> end
+function mathx.sin(x: float): float <cimport 'sinf', nosideeffect> end
+function mathx.tan(x: float): float <cimport 'tanf', nosideeffect> end
+function mathx.sqrt(x: float): float <cimport 'sqrtf', nosideeffect> end
+function mathx.exp(x: float): float <cimport 'expf', nosideeffect> end
+function mathx.log(x: float): float <cimport 'logf', nosideeffect> end
+function mathx.fmod(x: float, y: float): float <cimport 'fmodf', nosideeffect> end
+function mathx.atan2(x: float, y: float): float <cimport 'atan2f', nosideeffect> end
+global mathx.inf: float <const, cimport 'INFINITY'>
+## end
+
+global mathx.pi: float <compconst>  = 3.141592653589793
+global mathx.tau: float <compconst> = 6.283185307179586
+
+function mathx.clamp(x: float, min: float, max: float): float
+  return mathx.max(mathx.min(x, max), min)
+end
+
+function mathx.smoothstep(edge0: float, edge1: float, x: float): float
+  local t = mathx.clamp((x - edge0) / (edge1 - edge0), 0, 1)
+  return t * t * (3 - 2 * t)
+end
+
+function mathx.step(edge: float, x: float): float
+  if x < edge then
+    return 0
+  else
+    return 1
+  end
+end
+
+function mathx.fastexp4(x: float): float
+  x = 1.0 + x * (1.0 / 17.0)
+  local t = x
+  ## for i=1,4 do
+    t=t*t
+  ## end
+  return mathx.max(t*x,0.0)
+end
+
+function mathx.fastexp8(x: float): float
+  x = 1.0 + x * (1.0 / 257.0)
+  local t = x
+  ## for i=1,8 do
+    t=t*t
+  ## end
+  return mathx.max(t*x,0.0)
+end
+
+function mathx.fract(x: float): float
+  return x - mathx.floor(x)
+end
+
+function mathx.fastsin(x: float): float
+  x = x*(1.0/mathx.pi)
+  local xi = mathx.floor(x)
+  local xs = xi - 2*mathx.floor(0.5*x)
+  local xf = x - xi
+  return (1-2*xs)*(4*xf)*(1-xf)
+end
+
+function mathx.fastcos(x: float): float
+  return mathx.fastsin(x + mathx.pi/2)
+end

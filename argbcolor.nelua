@@ -1,0 +1,15 @@
+global argbcolor = @record{
+  b: byte,
+  g: byte,
+  r: byte,
+  a: byte
+}
+
+function argbcolor.fromvec3(col: vec3): argbcolor
+  return argbcolor{
+    (@uint8)(mathx.clamp(col.z*255, 0, 255)),
+    (@uint8)(mathx.clamp(col.y*255, 0, 255)),
+    (@uint8)(mathx.clamp(col.x*255, 0, 255)),
+    255
+  }
+end

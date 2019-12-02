@@ -17,8 +17,8 @@ global Camera = @record{
 }
 
 function Camera:update()
-  local theta = self.vfov*math.pi/180
-  local half_height = math.tan(theta/2)
+  local theta = self.vfov*mathx.pi/180
+  local half_height = mathx.tan(theta/2)
   local half_width = self.aspect * half_height
   self.w = vec3.unit(vec3.sub(self.origin, self.lookat))
   self.u = vec3.unit(vec3.cross(self.vup, self.w))

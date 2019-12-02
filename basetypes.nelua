@@ -1,3 +1,0 @@
-global float = @float64
-global int = @int64
-

@@ -1,0 +1,32 @@
+global vec2 = @record {
+  x: float,
+  y: float
+}
+
+function vec2.div(a: vec2, b: vec2)
+  return vec2{a.x / b.x, a.y / b.y}
+end
+
+function vec2.sub(a: vec2, b: vec2)
+  return vec2{a.x - b.x, a.y - b.y}
+end
+
+function vec2.mul(a: vec2, b: vec2)
+  return vec2{a.x * b.x, a.y * b.y}
+end
+
+function vec2.smul(a: vec2, x: float)
+  return vec2{a.x * x, a.y * x}
+end
+
+function vec2.length(a: vec2)
+  return mathx.sqrt(a.x * a.x + a.y * a.y)
+end
+
+function vec2.abs(a: vec2)
+  return vec2{mathx.abs(a.x), mathx.abs(a.y)}
+end
+
+function vec2.max(a: vec2, b: vec2)
+  return vec2{mathx.max(a.x, b.x), mathx.max(a.y, b.y)}
+end

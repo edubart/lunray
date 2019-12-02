@@ -1,14 +1,3 @@
-global argbcolor = @record{
-  b: byte,
-  g: byte,
-  r: byte,
-  a: byte
-}
-
-function argbcolor.fromvec3(col: vec3): argbcolor
-  return argbcolor{(@uint8)(col.z*255), (@uint8)(col.y*255), (@uint8)(col.x*255), 255}
-end
-
 global Window = @record {
   window: SDL_Window*,
   renderer: SDL_Renderer*,
@@ -26,7 +15,7 @@ function Window.create(width: integer, height: integer): Window
     (@cint)(width), (@cint)(height), SDL_WINDOW_OPENGL)
   assert(window, "Could not create window")
 
-  local renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED)
+  local renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)
   assert(renderer, "Could not create renderer")
   SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE)
 
