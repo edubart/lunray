@@ -84,3 +84,4 @@ global function SDL_SetRenderDrawBlendMode(renderer: SDL_Renderer*, blendMode: i
 global function SDL_SetTextureBlendMode(texture: SDL_Texture*, blendMode: int32): cint <cimport> end
 global function SDL_UpdateTexture(texture: SDL_Texture*, rect: SDL_Rect*, pixels: pointer, pitch: cint): cint <cimport> end
 global function SDL_GetError(): cstring <cimport> end
+global function SDL_SetHint(name: cstring, value: cstring): int32 <cimport> end

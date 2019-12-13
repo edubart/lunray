@@ -8,6 +8,7 @@ global Window = @record {
 }
 
 function Window.create(width: integer, height: integer): Window
+  SDL_SetHint('SDL_FRAMEBUFFER_ACCELERATION', '0')
   SDL_Init(SDL_INIT_VIDEO)
 
   local window = SDL_CreateWindow("An SDL2 Window",

@@ -6,10 +6,7 @@
 ## modname = sdf2d
 ## strict = true
 ## cflags '-O3 -march=native -ffast-math -fno-plt -fopenmp -rdynamic -g'
-
 ## FLOAT32 = true
-## SCREEN_WIDTH = 960
-## SCREEN_HEIGHT = 540
 
 require 'math'
 require 'mathx'
@@ -19,9 +16,11 @@ require 'argbcolor'
 require 'sdl2'
 require 'window'
 
-local pixels: argbcolor[#[SCREEN_WIDTH]#][#[SCREEN_HEIGHT]#] <aligned(16)>
-local iResolution <compconst> = vec2{#[SCREEN_WIDTH]#, #[SCREEN_HEIGHT]#}
-local iInvResolution <compconst> = vec2{#[1/SCREEN_WIDTH]#, #[1/SCREEN_HEIGHT]#}
+local SCREEN_WIDTH <compconst> = 960
+local SCREEN_HEIGHT <compconst> = 540
+local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
+local iResolution <const> = vec2{SCREEN_WIDTH, SCREEN_HEIGHT}
+local iInvResolution <const> = vec2{1/SCREEN_WIDTH, 1/SCREEN_HEIGHT}
 local iTime: float
 
 local function sd_circle(p: vec2, r: float): float
@@ -48,12 +47,12 @@ local function map(p: vec2): float
 end
 
 local function get_distance_field_color(d: float)
-  local outcolor <compconst> = vec3{0.9,0.6,0.3}
-  local incolor <compconst> = vec3{0.3,0.6,0.9}
-  local boundcolor <compconst> = vec3{1.0,1.0,1.0}
-  local linechange: float <compconst> = 0.2
-  local numlines: float <compconst> = 120.0
-  local linesmooth: float <compconst> = 0.5
+  local outcolor <const> = vec3{0.9,0.6,0.3}
+  local incolor <const> = vec3{0.3,0.6,0.9}
+  local boundcolor <const> = vec3{1.0,1.0,1.0}
+  local linechange: float <const> = 0.2
+  local numlines: float <const> = 120.0
+  local linesmooth: float <const> = 0.5
   local linestep = mathx.smoothstep(-linesmooth, linesmooth, mathx.fastsin(d*numlines))*2.0 - 1.0
   local brightness = (1.0-linechange) + linechange*linestep
   local decay = mathx.fastexp4(-mathx.abs(d))
@@ -79,11 +78,11 @@ local function main_image(fragcoord: vec2)
 end
 
 local function draw()
-  ## cemit '#pragma omp parallel for schedule(dynamic)'
-  for y=0,<#[SCREEN_HEIGHT]# do
-    for x=0,<#[SCREEN_WIDTH]# do
+  --## cemit '#pragma omp parallel for schedule(dynamic)'
+  for y=0,<SCREEN_HEIGHT do
+    for x=0,<SCREEN_WIDTH do
       local fragcolor = main_image(vec2{x,y})
-      pixels[#[SCREEN_HEIGHT-1]#-y][x] = argbcolor.fromvec3(fragcolor)
+      pixels[SCREEN_HEIGHT-1-y][x] = argbcolor.fromvec3(fragcolor)
     end
   end
 end
@@ -100,7 +99,7 @@ local function poll_events()
 end
 
 local function go()
-  local window = Window.create(#[SCREEN_WIDTH]#, #[SCREEN_HEIGHT]#)
+  local window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT)
 
   local lastticks = SDL_GetTicks()
   local fps = 0
