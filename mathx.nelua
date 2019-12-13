@@ -5,42 +5,42 @@ global int = @int64
 
 ## if FLOAT64 then
 global float = @float64
-function mathx.abs(x: float): float <cimport 'fabs', nosideeffect> end
-function mathx.ceil(x: float): float <cimport 'ceil', nosideeffect> end
-function mathx.floor(x: float): float <cimport 'floor', nosideeffect> end
-function mathx.max(x: float, y: float): float <cimport 'fmax', nosideeffect> end
-function mathx.min(x: float, y: float): float <cimport 'fmin', nosideeffect> end
-function mathx.acos(x: float): float <cimport 'acos', nosideeffect> end
-function mathx.asin(x: float): float <cimport 'asin', nosideeffect> end
-function mathx.atan(x: float): float <cimport 'atan', nosideeffect> end
-function mathx.cos(x: float): float <cimport 'cos', nosideeffect> end
-function mathx.sin(x: float): float <cimport 'sin', nosideeffect> end
-function mathx.tan(x: float): float <cimport 'tan', nosideeffect> end
-function mathx.sqrt(x: float): float <cimport 'sqrt', nosideeffect> end
-function mathx.exp(x: float): float <cimport 'exp', nosideeffect> end
-function mathx.log(x: float): float <cimport 'log', nosideeffect> end
-function mathx.fmod(x: float, y: float): float <cimport 'fmod', nosideeffect> end
-function mathx.atan2(x: float, y: float): float <cimport 'atan2', nosideeffect> end
-global mathx.inf: float <const, cimport 'INFINITY'>
+function mathx.abs(x: float): float <cimport'fabs',nodecl,nosideeffect> end
+function mathx.ceil(x: float): float <cimport'ceil',nodecl,nosideeffect> end
+function mathx.floor(x: float): float <cimport'floor',nodecl,nosideeffect> end
+function mathx.max(x: float, y: float): float <cimport'fmax',nodecl,nosideeffect> end
+function mathx.min(x: float, y: float): float <cimport'fmin',nodecl,nosideeffect> end
+function mathx.acos(x: float): float <cimport'acos',nodecl,nosideeffect> end
+function mathx.asin(x: float): float <cimport'asin',nodecl,nosideeffect> end
+function mathx.atan(x: float): float <cimport'atan',nodecl,nosideeffect> end
+function mathx.cos(x: float): float <cimport'cos',nodecl,nosideeffect> end
+function mathx.sin(x: float): float <cimport'sin',nodecl,nosideeffect> end
+function mathx.tan(x: float): float <cimport'tan',nodecl,nosideeffect> end
+function mathx.sqrt(x: float): float <cimport'sqrt',nodecl,nosideeffect> end
+function mathx.exp(x: float): float <cimport'exp',nodecl,nosideeffect> end
+function mathx.log(x: float): float <cimport'log',nodecl,nosideeffect> end
+function mathx.fmod(x: float, y: float): float <cimport'fmod',nodecl,nosideeffect> end
+function mathx.atan2(x: float, y: float): float <cimport'atan2',nodecl,nosideeffect> end
+global mathx.inf: float <const,cimport'INFINITY'>
 ## else
 global float = @float32
-function mathx.abs(x: float): float <cimport 'fabsf', nosideeffect> end
-function mathx.ceil(x: float): float <cimport 'ceilf', nosideeffect> end
-function mathx.floor(x: float): float <cimport 'floorf', nosideeffect> end
-function mathx.max(x: float, y: float): float <cimport 'fmaxf', nosideeffect> end
-function mathx.min(x: float, y: float): float <cimport 'fminf', nosideeffect> end
-function mathx.acos(x: float): float <cimport 'acosf', nosideeffect> end
-function mathx.asin(x: float): float <cimport 'asinf', nosideeffect> end
-function mathx.atan(x: float): float <cimport 'atanf', nosideeffect> end
-function mathx.cos(x: float): float <cimport 'cosf', nosideeffect> end
-function mathx.sin(x: float): float <cimport 'sinf', nosideeffect> end
-function mathx.tan(x: float): float <cimport 'tanf', nosideeffect> end
-function mathx.sqrt(x: float): float <cimport 'sqrtf', nosideeffect> end
-function mathx.exp(x: float): float <cimport 'expf', nosideeffect> end
-function mathx.log(x: float): float <cimport 'logf', nosideeffect> end
-function mathx.fmod(x: float, y: float): float <cimport 'fmodf', nosideeffect> end
-function mathx.atan2(x: float, y: float): float <cimport 'atan2f', nosideeffect> end
-global mathx.inf: float <const, cimport 'INFINITY'>
+function mathx.abs(x: float): float <cimport'fabsf',nodecl,nosideeffect> end
+function mathx.ceil(x: float): float <cimport'ceilf',nodecl,nosideeffect> end
+function mathx.floor(x: float): float <cimport'floorf',nodecl,nosideeffect> end
+function mathx.max(x: float, y: float): float <cimport'fmaxf',nodecl,nosideeffect> end
+function mathx.min(x: float, y: float): float <cimport'fminf',nodecl,nosideeffect> end
+function mathx.acos(x: float): float <cimport'acosf',nodecl,nosideeffect> end
+function mathx.asin(x: float): float <cimport'asinf',nodecl,nosideeffect> end
+function mathx.atan(x: float): float <cimport'atanf',nodecl,nosideeffect> end
+function mathx.cos(x: float): float <cimport'cosf',nodecl,nosideeffect> end
+function mathx.sin(x: float): float <cimport'sinf',nodecl,nosideeffect> end
+function mathx.tan(x: float): float <cimport'tanf',nodecl,nosideeffect> end
+function mathx.sqrt(x: float): float <cimport'sqrtf',nodecl,nosideeffect> end
+function mathx.exp(x: float): float <cimport'expf',nodecl,nosideeffect> end
+function mathx.log(x: float): float <cimport'logf',nodecl,nosideeffect> end
+function mathx.fmod(x: float, y: float): float <cimport'fmodf',nodecl,nosideeffect> end
+function mathx.atan2(x: float, y: float): float <cimport'atan2f',nodecl,nosideeffect> end
+global mathx.inf: float <const,cimport'INFINITY',nodecl>
 ## end
 
 global mathx.pi: float <compconst>  = 3.141592653589793
