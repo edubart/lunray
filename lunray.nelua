@@ -33,10 +33,10 @@ require 'sphere'
 require 'camera'
 require 'window'
 
-local SCREEN_WIDTH <compconst> = 960--480
-local SCREEN_HEIGHT <compconst> = 540--270
-local NUMSAMPLES <compconst> = 1
-local MAXDEPTH <compconst> = 16
+local SCREEN_WIDTH <comptime> = 960--480
+local SCREEN_HEIGHT <comptime> = 540--270
+local NUMSAMPLES <comptime> = 1
+local MAXDEPTH <comptime> = 16
 
 local worldsize
 local Hitlist = @array(Sphere,500)
@@ -205,7 +205,7 @@ local function world_init()
   world[4] = Sphere{center={ 4,    1,0}, radius=1, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.7, 0.6, 0.5}}}}
 
   local i = 5
-  local NUMSPHERES <compconst> = 1
+  local NUMSPHERES <comptime> = 1
   for a=-NUMSPHERES,<NUMSPHERES do
     for b=-NUMSPHERES,<NUMSPHERES do
       local choosemat = math.random()

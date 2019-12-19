@@ -1,4 +1,4 @@
---TODO: use compconst
+--TODO: use comptime
 --TODO: use float32 (double speed)
 --TODO: generate only the needed C code
 --TODO: avoid typing <nosideeffect>
@@ -16,8 +16,8 @@ require 'argbcolor'
 require 'sdl2'
 require 'window'
 
-local SCREEN_WIDTH <compconst> = 960
-local SCREEN_HEIGHT <compconst> = 540
+local SCREEN_WIDTH <comptime> = 960
+local SCREEN_HEIGHT <comptime> = 540
 local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local iResolution <const> = vec2{SCREEN_WIDTH, SCREEN_HEIGHT}
 local iInvResolution <const> = vec2{1/SCREEN_WIDTH, 1/SCREEN_HEIGHT}
@@ -50,9 +50,9 @@ local function get_distance_field_color(d: float)
   local outcolor <const> = vec3{0.9,0.6,0.3}
   local incolor <const> = vec3{0.3,0.6,0.9}
   local boundcolor <const> = vec3{1.0,1.0,1.0}
-  local linechange: float <const> = 0.2
-  local numlines: float <const> = 120.0
-  local linesmooth: float <const> = 0.5
+  local linechange <comptime> = 0.2
+  local numlines <comptime> = 120.0
+  local linesmooth <comptime> = 0.5
   local linestep = mathx.smoothstep(-linesmooth, linesmooth, mathx.fastsin(d*numlines))*2.0 - 1.0
   local brightness = (1.0-linechange) + linechange*linestep
   local decay = mathx.fastexp4(-mathx.abs(d))

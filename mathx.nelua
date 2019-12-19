@@ -43,8 +43,8 @@ function mathx.atan2(x: float, y: float): float <cimport'atan2f',nodecl,nosideef
 global mathx.inf: float <const,cimport'INFINITY',nodecl>
 ## end
 
-global mathx.pi: float <compconst>  = 3.141592653589793
-global mathx.tau: float <compconst> = 6.283185307179586
+global mathx.pi: float <comptime>  = 3.141592653589793
+global mathx.tau: float <comptime> = 6.283185307179586
 
 function mathx.clamp(x: float, min: float, max: float): float
   return mathx.max(mathx.min(x, max), min)
