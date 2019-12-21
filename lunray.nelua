@@ -9,6 +9,7 @@ nohashcodenames = true
 CARTOONIZED = false
 DENOISER = true
 FLOAT32 = true
+strict = true
 ]##]
 
 --TODO: multidimensional arrays shortcut swap?

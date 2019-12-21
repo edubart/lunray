@@ -50,6 +50,7 @@ global SDLK_s: int32 <cimport,nodecl>
 global SDLK_d: int32 <cimport,nodecl>
 global SDLK_e: int32 <cimport,nodecl>
 global SDLK_q: int32 <cimport,nodecl>
+global SDLK_ESCAPE: int32 <cimport,nodecl>
 global SDL_PIXELFORMAT_ARGB8888: uint32 <cimport,nodecl>
 global SDL_BLENDMODE_NONE: int32 <cimport,nodecl>
 global SDL_RENDERER_ACCELERATED: uint32 <cimport,nodecl>
