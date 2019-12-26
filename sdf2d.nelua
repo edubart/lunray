@@ -5,7 +5,7 @@
 
 ## modname = sdf2d
 ## strict = true
-## cflags '-O3 -march=native -ffast-math -fno-plt -fopenmp -rdynamic -g'
+## cflags '-O3 -march=native -ffast-math -fno-plt -fopenmp -g'
 ## FLOAT32 = true
 
 require 'math'
