@@ -1,7 +1,5 @@
---TODO: use comptime
---TODO: use float32 (double speed)
---TODO: generate only the needed C code
---TODO: avoid typing <nosideeffect>
+--TODO: dead code elimination
+--TODO: better side effects detection
 
 ## modname = sdf2d
 ## strict = true

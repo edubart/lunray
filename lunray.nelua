@@ -12,11 +12,8 @@ FLOAT32 = true
 strict = true
 ]]
 
---TODO: multidimensional arrays shortcut swap?
---TODO: record field aliases
---TODO: record operators
---TODO: record overloading
---TODO: evaluate const numeric expressions
+--TODO: record metamethods
+--TODO: function overloading
 --TODO: optional type
 
 require 'math'
