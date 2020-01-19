@@ -99,7 +99,7 @@ local function trace_rays() <noinline>
   ## cemit '#pragma omp parallel for schedule(dynamic)'
   for y=0,<SCREEN_HEIGHT do
     for x=0,<SCREEN_WIDTH do
-      ## if symbols.NUMSAMPLES.value:tonumber() == 1 then
+      ## if NUMSAMPLES.value:tonumber() == 1 then
         local v, u
         ## if DENOISER then
           v, u = (y + math.random() - 0.5) / (@float)(SCREEN_HEIGHT), (x + math.random() - 0.5) / (@float)(SCREEN_WIDTH)
