@@ -15,7 +15,7 @@ function Texture:color_color(uv: vec2, p: vec3): vec3
 end
 
 function Texture:checker_color(uv: vec2, p: vec3): vec3
-  local sines = mathx.sin(10*p.x)*mathx.sin(10*p.y)*mathx.sin(10*p.z)
+  local sines = math.sin(10*p.x)*math.sin(10*p.y)*math.sin(10*p.z)
   if sines < 0 then
     return vec3{1,1,1}
   else

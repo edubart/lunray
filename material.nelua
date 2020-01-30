@@ -30,7 +30,7 @@ function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
   if discriminant > 0 then
     local refracted = vec3.sub(
       vec3.smul(vec3.sub(uv, vec3.smul(n, dt)), ni),
-      vec3.smul(n, mathx.sqrt(discriminant)))
+      vec3.smul(n, math.sqrt(discriminant)))
     return true, refracted
   else
     return false, vec3{}
@@ -70,7 +70,7 @@ function Material:dielectric_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   local ni: float, reflectprob: float
   local cosine = vec3.dot(r.direction, rec.normal) / vec3.length(r.direction)
   if vec3.dot(r.direction, rec.normal) > 0 then
-    cosine = mathx.sqrt(1 - self.fuzz*self.fuzz*(1-cosine*cosine))
+    cosine = math.sqrt(1 - self.fuzz*self.fuzz*(1-cosine*cosine))
     outward_normal = vec3.neg(rec.normal)
     ni = self.fuzz
   else

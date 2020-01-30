@@ -5,11 +5,11 @@ global Sphere = @record{
 }
 
 function Sphere.get_uv(p: vec3): vec2
-  local phi = mathx.atan2(p.z, p.x)
-  local theta = mathx.asin(p.y)
+  local phi = math.atan(p.z, p.x)
+  local theta = math.asin(p.y)
   return vec2{
-    1 - ((phi + mathx.pi) / (2*mathx.pi)),
-    (theta + mathx.pi/2) / mathx.pi,
+    1 - ((phi + math.pi) / (2*math.pi)),
+    (theta + math.pi/2) / math.pi,
   }
 end
 
@@ -22,7 +22,7 @@ function Sphere:hit(r: Ray, tmin: float, tmax: float): (boolean, Hit)
   local rec: Hit
   local t: float
   if discriminant > 0 then
-    local droot = mathx.sqrt(discriminant)
+    local droot = math.sqrt(discriminant)
     local ainv = 1 / a
     t = (-b - droot) * ainv
     if t < tmax and t > tmin then

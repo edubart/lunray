@@ -20,13 +20,13 @@ function vec2.smul(a: vec2, x: float)
 end
 
 function vec2.length(a: vec2)
-  return mathx.sqrt(a.x * a.x + a.y * a.y)
+  return math.sqrt(a.x * a.x + a.y * a.y)
 end
 
 function vec2.abs(a: vec2)
-  return vec2{mathx.abs(a.x), mathx.abs(a.y)}
+  return vec2{math.abs(a.x), math.abs(a.y)}
 end
 
 function vec2.max(a: vec2, b: vec2)
-  return vec2{mathx.max(a.x, b.x), mathx.max(a.y, b.y)}
+  return vec2{math.max(a.x, b.x), math.max(a.y, b.y)}
 end

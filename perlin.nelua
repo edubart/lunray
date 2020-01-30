@@ -44,8 +44,8 @@ function trilinear_interp(c: vec3[2][2][2], u: float, v: float, w: float)
 end
 
 function Perlin.noise(p: vec3): float
-  local u, v, w = p.x - mathx.floor(p.x), p.y - mathx.floor(p.y), p.z - mathx.floor(p.z)
-  local pi, pj, pk = (@int)(mathx.floor(p.x)), (@int)(mathx.floor(p.y)), (@int)(mathx.floor(p.z))
+  local u, v, w = p.x - math.floor(p.x), p.y - math.floor(p.y), p.z - math.floor(p.z)
+  local pi, pj, pk = (@int)(math.floor(p.x)), (@int)(math.floor(p.y)), (@int)(math.floor(p.z))
   local c: vec3[2][2][2]
   for i=0,1 do
     for j=0,1 do
@@ -68,7 +68,7 @@ function Perlin.turb(p: vec3, depth: int)
     weight = weight * 0.5
     p = vec3.add(p, p)
   end
-  return mathx.abs(accum)
+  return math.abs(accum)
 end
 
 Perlin.generate()

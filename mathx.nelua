@@ -1,61 +1,29 @@
 ## strict = true
 
-global mathx = @record{}
+require 'math'
+
 global int = @int64
 
 ## if FLOAT64 then
 global float = @float64
-function mathx.abs(x: float): float <cimport'fabs',nodecl,nosideeffect> end
-function mathx.ceil(x: float): float <cimport'ceil',nodecl,nosideeffect> end
-function mathx.floor(x: float): float <cimport'floor',nodecl,nosideeffect> end
-function mathx.max(x: float, y: float): float <cimport'fmax',nodecl,nosideeffect> end
-function mathx.min(x: float, y: float): float <cimport'fmin',nodecl,nosideeffect> end
-function mathx.acos(x: float): float <cimport'acos',nodecl,nosideeffect> end
-function mathx.asin(x: float): float <cimport'asin',nodecl,nosideeffect> end
-function mathx.atan(x: float): float <cimport'atan',nodecl,nosideeffect> end
-function mathx.cos(x: float): float <cimport'cos',nodecl,nosideeffect> end
-function mathx.sin(x: float): float <cimport'sin',nodecl,nosideeffect> end
-function mathx.tan(x: float): float <cimport'tan',nodecl,nosideeffect> end
-function mathx.sqrt(x: float): float <cimport'sqrt',nodecl,nosideeffect> end
-function mathx.exp(x: float): float <cimport'exp',nodecl,nosideeffect> end
-function mathx.log(x: float): float <cimport'log',nodecl,nosideeffect> end
-function mathx.fmod(x: float, y: float): float <cimport'fmod',nodecl,nosideeffect> end
-function mathx.atan2(x: float, y: float): float <cimport'atan2',nodecl,nosideeffect> end
-global mathx.inf: float <const,cimport'INFINITY'>
+global math.inf: float <const,cimport'INFINITY'>
 ## else
 global float = @float32
-function mathx.abs(x: float): float <cimport'fabsf',nodecl,nosideeffect> end
-function mathx.ceil(x: float): float <cimport'ceilf',nodecl,nosideeffect> end
-function mathx.floor(x: float): float <cimport'floorf',nodecl,nosideeffect> end
-function mathx.max(x: float, y: float): float <cimport'fmaxf',nodecl,nosideeffect> end
-function mathx.min(x: float, y: float): float <cimport'fminf',nodecl,nosideeffect> end
-function mathx.acos(x: float): float <cimport'acosf',nodecl,nosideeffect> end
-function mathx.asin(x: float): float <cimport'asinf',nodecl,nosideeffect> end
-function mathx.atan(x: float): float <cimport'atanf',nodecl,nosideeffect> end
-function mathx.cos(x: float): float <cimport'cosf',nodecl,nosideeffect> end
-function mathx.sin(x: float): float <cimport'sinf',nodecl,nosideeffect> end
-function mathx.tan(x: float): float <cimport'tanf',nodecl,nosideeffect> end
-function mathx.sqrt(x: float): float <cimport'sqrtf',nodecl,nosideeffect> end
-function mathx.exp(x: float): float <cimport'expf',nodecl,nosideeffect> end
-function mathx.log(x: float): float <cimport'logf',nodecl,nosideeffect> end
-function mathx.fmod(x: float, y: float): float <cimport'fmodf',nodecl,nosideeffect> end
-function mathx.atan2(x: float, y: float): float <cimport'atan2f',nodecl,nosideeffect> end
-global mathx.inf: float <const,cimport'INFINITY',nodecl>
+global math.inf: float <const,cimport'INFINITY',nodecl>
 ## end
 
-global mathx.pi: float <comptime>  = 3.141592653589793
-global mathx.tau: float <comptime> = 6.283185307179586
+global math.tau: float <comptime> = 6.283185307179586
 
-function mathx.clamp(x: float, min: float, max: float): float
-  return mathx.max(mathx.min(x, max), min)
+function math.clamp(x: float, min: float, max: float): float
+  return math.max(math.min(x, max), min)
 end
 
-function mathx.smoothstep(edge0: float, edge1: float, x: float): float
-  local t = mathx.clamp((x - edge0) / (edge1 - edge0), 0, 1)
+function math.smoothstep(edge0: float, edge1: float, x: float): float
+  local t = math.clamp((x - edge0) / (edge1 - edge0), 0, 1)
   return t * t * (3 - 2 * t)
 end
 
-function mathx.step(edge: float, x: float): float
+function math.step(edge: float, x: float): float
   if x < edge then
     return 0
   else
@@ -63,36 +31,36 @@ function mathx.step(edge: float, x: float): float
   end
 end
 
-function mathx.fastexp4(x: float): float
+function math.fastexp4(x: float): float
   x = 1.0 + x * (1.0 / 17.0)
   local t = x
   ## for i=1,4 do
     t=t*t
   ## end
-  return mathx.max(t*x,0.0)
+  return math.max(t*x,0.0)
 end
 
-function mathx.fastexp8(x: float): float
+function math.fastexp8(x: float): float
   x = 1.0 + x * (1.0 / 257.0)
   local t = x
   ## for i=1,8 do
     t=t*t
   ## end
-  return mathx.max(t*x,0.0)
+  return math.max(t*x,0.0)
 end
 
-function mathx.fract(x: float): float
-  return x - mathx.floor(x)
+function math.fract(x: float): float
+  return x - math.floor(x)
 end
 
-function mathx.fastsin(x: float): float
-  x = x*(1.0/mathx.pi)
-  local xi = mathx.floor(x)
-  local xs = xi - 2*mathx.floor(0.5*x)
+function math.fastsin(x: float): float
+  x = x*(1.0/math.pi)
+  local xi = math.floor(x)
+  local xs = xi - 2*math.floor(0.5*x)
   local xf = x - xi
   return (1-2*xs)*(4*xf)*(1-xf)
 end
 
-function mathx.fastcos(x: float): float
-  return mathx.fastsin(x + mathx.pi/2)
+function math.fastcos(x: float): float
+  return math.fastsin(x + math.pi/2)
 end
