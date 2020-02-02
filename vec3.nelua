@@ -81,7 +81,7 @@ function vec3.rotvec(v: vec3, axis: vec3, theta: float): vec3
   return vec3.add(vec3.smul(n, ns), vec3.add(vec3.smul(w, sint), vec3.smul(v, cost)))
 end
 
-function random_in_unit_sphere(): vec3
+function vec3.random_in_unit_sphere(): vec3
   local p: vec3
   repeat
     p = vec3.sub(vec3.smul(vec3{math.random(), math.random(), math.random()}, 2), vec3{1,1,1})

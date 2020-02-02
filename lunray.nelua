@@ -4,8 +4,6 @@
 ## cflags '-O3 -ffast-math -march=native -fno-plt -fopenmp -g'
 
 ##[[
-modname = 'lunray'
-nohashcodenames = true
 CARTOONIZED = false
 DENOISER = true
 FLOAT32 = true

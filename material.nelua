@@ -19,11 +19,11 @@ global Hit = @record{
   t: float
 }
 
-function reflect(v: vec3, n: vec3): vec3
+local function reflect(v: vec3, n: vec3): vec3
   return vec3.sub(v, vec3.smul(n, 2*vec3.dot(v,n)))
 end
 
-function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
+local function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
   local uv = vec3.unit(v)
   local dt = vec3.dot(uv, n)
   local discriminant = 1 - ni*ni*(1-dt*dt)
@@ -37,7 +37,7 @@ function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
   end
 end
 
-function schlick(cosine: float, refidx: float): float
+local function schlick(cosine: float, refidx: float): float
   local r0 = (1-refidx) / (1+refidx)
   r0 = r0*r0
   return r0 + (1-r0)*((1-cosine)^5)

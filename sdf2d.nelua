@@ -1,7 +1,6 @@
 --TODO: dead code elimination
 --TODO: better side effects detection
 
-## modname = sdf2d
 ## strict = true
 ## cflags '-O3 -march=native -ffast-math -fno-plt -fopenmp -g'
 ## FLOAT32 = true
