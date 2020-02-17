@@ -20,7 +20,7 @@ global Hit = @record{
 }
 
 local function reflect(v: vec3, n: vec3): vec3
-  return vec3.sub(v, vec3.smul(n, 2*vec3.dot(v,n)))
+  return v - n * (2*vec3.dot(v,n))
 end
 
 local function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
@@ -28,9 +28,9 @@ local function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
   local dt = vec3.dot(uv, n)
   local discriminant = 1 - ni*ni*(1-dt*dt)
   if discriminant > 0 then
-    local refracted = vec3.sub(
-      vec3.smul(vec3.sub(uv, vec3.smul(n, dt)), ni),
-      vec3.smul(n, math.sqrt(discriminant)))
+    local refracted = 
+      ni * (uv - n * dt) -
+      n * math.sqrt(discriminant)
     return true, refracted
   else
     return false, vec3{}
@@ -57,7 +57,7 @@ function Material:metal_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   local reflected = reflect(vec3.unit(r.direction), rec.normal)
   ## if not CARTOONIZED then
     if self.fuzz > 0 then
-      reflected = vec3.add(reflected, vec3.smul(vec3.random_in_hemisphere(rec.normal), self.fuzz))
+      reflected = reflected + vec3.random_in_hemisphere(rec.normal) * self.fuzz
     end
   ## end
   local scattered = Ray{rec.p, reflected}
@@ -68,10 +68,10 @@ end
 function Material:dielectric_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   local outward_normal: vec3
   local ni: float, reflectprob: float
-  local cosine = vec3.dot(r.direction, rec.normal) / vec3.length(r.direction)
+  local cosine = vec3.dot(r.direction, rec.normal) / #r.direction
   if vec3.dot(r.direction, rec.normal) > 0 then
     cosine = math.sqrt(1 - self.fuzz*self.fuzz*(1-cosine*cosine))
-    outward_normal = vec3.neg(rec.normal)
+    outward_normal = -rec.normal
     ni = self.fuzz
   else
     cosine = -cosine

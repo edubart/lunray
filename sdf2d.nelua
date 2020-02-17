@@ -20,7 +20,7 @@ local iInvResolution <const> = vec2{1/SCREEN_WIDTH, 1/SCREEN_HEIGHT}
 local iTime: float
 
 local function sd_circle(p: vec2, r: float): float
-  return vec2.length(p) - r
+  return #p - r
 end
 
 local function sd_vline(p: vec2, r: float): float
@@ -28,16 +28,16 @@ local function sd_vline(p: vec2, r: float): float
 end
 
 local function sd_box(p: vec2, r: vec2): float
-  local d = vec2.sub(vec2.abs(p), r)
-  return vec2.length(vec2.max(d, vec2{0,0})) + math.min(math.max(d.x,d.y), 0.0)
+  local d = vec2.abs(p) - r
+  return # (vec2.max(d, vec2{0,0})) + math.min(math.max(d.x,d.y), 0.0)
 end
 
 local function map(p: vec2): float
   local d: float
-  p = vec2.smul(p, 10.0)
-  d = sd_circle(vec2.sub(p, vec2{-10.0*math.fastsin(iTime),5.0}), 1.0)
-  d = math.min(d, sd_vline(vec2.sub(p, vec2{-5.0,5.0}), 1.0))
-  d = math.min(d, sd_box(vec2.sub(p, vec2{0.0,5.0}), vec2{2.0,2.0}))
+  p = p * 10.0
+  d = sd_circle(p - vec2{-10.0*math.fastsin(iTime),5.0}, 1.0)
+  d = math.min(d, sd_vline(p - vec2{-5.0,5.0}, 1.0))
+  d = math.min(d, sd_box(p - vec2{0.0,5.0}, vec2{2.0,2.0}))
   d = d * (1.0/10.0)
   return d
 end
@@ -52,23 +52,23 @@ local function get_distance_field_color(d: float)
   local linestep = math.smoothstep(-linesmooth, linesmooth, math.fastsin(d*numlines))*2.0 - 1.0
   local brightness = (1.0-linechange) + linechange*linestep
   local decay = math.fastexp4(-math.abs(d))
-  local colfield = vec3.smul(vec3.lerp(incolor, outcolor, math.step(0.0, d)), brightness * decay)
-  local colbound = vec3.smul(boundcolor, math.fastexp4(-(numlines*0.5)*math.abs(d)))
-  return vec3.add(colfield, colbound)
+  local colfield = vec3.lerp(incolor, outcolor, math.step(0.0, d)) * (brightness * decay)
+  local colbound = boundcolor * math.fastexp4(-(numlines*0.5)*math.abs(d))
+  return colfield + colbound
 end
 
 local function main_image(fragcoord: vec2)
-  local uv = vec2.smul(vec2.sub(vec2.smul(fragcoord, 2.0), iResolution), iInvResolution.y)
+  local uv = (2.0 * fragcoord - iResolution) *iInvResolution.y
   local d = map(uv) * 1.0
   local col = get_distance_field_color(d)
   return col
   --[[
   local uv = vec2.div(fragcoord, iResolution)
-  local col = vec3.add(vec3{uv.x,uv.y,uv.x}, vec3{0,2,4})
-  col = vec3.eadd(col, iTime)
+  local col = vec3{uv.x,uv.y,uv.x} + vec3{0,2,4}
+  col = col + iTime
   col = vec3{math.fastcos(col.x),math.fastcos(col.y),math.fastcos(col.z)}
-  col = vec3.smul(col, 0.5)
-  col = vec3.eadd(col, 0.5)
+  col = col * 0.5
+  col = col + 0.5
   return col
   ]]
 end

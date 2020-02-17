@@ -66,7 +66,7 @@ function Perlin.turb(p: vec3, depth: int)
   for i=0,depth-1 do
     accum = accum + weight * Perlin.noise(p)
     weight = weight * 0.5
-    p = vec3.add(p, p)
+    p = p + p
   end
   return math.abs(accum)
 end

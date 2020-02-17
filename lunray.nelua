@@ -61,7 +61,7 @@ local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: float, tmax: float): (b
 end
 
 local function sky_color(direction: vec3)
-  local t = 0.5*(direction.y/vec3.length(direction) + 1)
+  local t = 0.5*(direction.y/#direction + 1)
   return vec3.lerp(vec3{1,1,1}, vec3{0.5, 0.7, 1}, t)
 end
 
@@ -74,7 +74,7 @@ local function trace_ray(r: Ray, depth: integer): vec3 <noinline>
     end
     local forward, attenuation, scattered = Material.scatter(rec.mat, r, rec)
     if forward then
-      return vec3.add(emitted, vec3.mul(trace_ray(scattered, depth+1), attenuation))
+      return emitted + trace_ray(scattered, depth+1) * attenuation
     else
       return emitted
     end
@@ -109,15 +109,15 @@ local function trace_rays() <noinline>
         local col: vec3
         for i=1,NUMSAMPLES do
           local v, u = (y + math.random() - 0.5) / (@float)(SCREEN_HEIGHT), (x + math.random() - 0.5) / (@float)(SCREEN_WIDTH)
-          col = vec3.add(col, trace_ray(Camera.getray(cam, u, v), 0))
+          col = col + trace_ray(Camera.getray(cam, u, v), 0)
         end
-        col = vec3.sdiv(col, NUMSAMPLES)
+        col = col / NUMSAMPLES
       ## end
       col = vec3.sqrt(col) -- gamma correction
       col = vec3.min(col, vec3{1,1,1})
       ## if DENOISER then
-        tempixels[y][x] = vec3.add(tempixels[y][x], col)
-        pixels[yoff - y][x] = argbcolor.fromvec3(vec3.sdiv(tempixels[y][x], ntem))
+        tempixels[y][x] = tempixels[y][x] + col
+        pixels[yoff - y][x] = argbcolor.fromvec3(tempixels[y][x] / ntem)
       ## else
         pixels[yoff - y][x] = argbcolor.fromvec3(col)
       ## end
@@ -206,7 +206,7 @@ local function world_init()
     for b=-NUMSPHERES,<NUMSPHERES do
       local choosemat = math.random()
       local center = vec3{a+0.9*math.random(), 0.2, b+0.9*math.random()}
-      if vec3.length(vec3.sub(center, vec3{4,0.2,0})) > 0.9 then
+      if # (center - vec3{4,0.2,0}) > 0.9 then
         if choosemat < 0.8 then --diffuse
           world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.COLOR, {math.random()*math.random(), math.random()*math.random(), math.random()*math.random()}}}}
         elseif choosemat < 0.95 then -- metal

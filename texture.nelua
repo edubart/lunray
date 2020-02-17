@@ -26,10 +26,10 @@ end
 function Texture:noise_color(uv: vec2, p: vec3): vec3
   local ticks: float = SDL_GetTicks() / 10000
   local offset = vec3{ticks, ticks, ticks}
-  local noise = Perlin.turb(vec3.smul(vec3.add(p, offset), self.scale), 1)
+  local noise = Perlin.turb((p + offset) * self.scale, 1)
 
-  --local noise = 0.5*(1+Perlin.turb(vec3.smul(p, self.scale), 2))
-  return vec3.smul(self.color, noise)
+  --local noise = 0.5*(1+Perlin.turb(p * self.scale, 2))
+  return self.color * noise
 end
 
 function Texture:color(uv: vec2, p: vec3): vec3
