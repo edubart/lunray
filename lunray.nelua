@@ -1,25 +1,20 @@
---## strict = true
-
 -- optimize for performance
-## cflags '-O3 -ffast-math -march=native -fno-plt -fopenmp -g'
+## cflags '-O2 -ffast-math -march=native -fno-plt -fopenmp'
 
 ##[[
+primtypes.number = primtypes.float32
+primtypes.integer = primtypes.int32
+primtypes.uinteger = primtypes.uint32
 CARTOONIZED = false
 DENOISER = true
-FLOAT32 = true
-strict = true
 ]]
-
---TODO: record metamethods
---TODO: function overloading
---TODO: optional type
 
 require 'math'
 require 'mathx'
 require 'vec2'
 require 'vec3'
 require 'argbcolor'
-require 'mat4'
+--require 'mat4'
 require 'perlin'
 require 'sdl2'
 require 'ray'
@@ -32,7 +27,7 @@ require 'window'
 local SCREEN_WIDTH <comptime> = 960--480
 local SCREEN_HEIGHT <comptime> = 540--270
 local NUMSAMPLES <comptime> = 1
-local MAXDEPTH <comptime> = 16
+local MAXDEPTH <comptime> = 8
 
 local worldsize
 local Hitlist = @array(Sphere,500)
@@ -45,7 +40,7 @@ local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local ntem = 0
 ## end
 
-local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: float, tmax: float): (boolean, Hit)
+local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: number, tmax: number): (boolean, Hit)
   local rec: Hit
   local tnear = tmax
   local hashit = false
@@ -100,15 +95,15 @@ local function trace_rays() <noinline>
       ## if NUMSAMPLES.value:tonumber() == 1 then
         local v, u
         ## if DENOISER then
-          v, u = (y + math.random() - 0.5) / (@float)(SCREEN_HEIGHT), (x + math.random() - 0.5) / (@float)(SCREEN_WIDTH)
+          v, u = (y + math.fastrand() - 0.5) / SCREEN_HEIGHT, (x + math.fastrand() - 0.5) / SCREEN_WIDTH
         ## else
-          v, u =  y / (@float)(SCREEN_HEIGHT), x / (@float)(SCREEN_WIDTH)
+          v, u =  y / SCREEN_HEIGHT, x / SCREEN_WIDTH
         ## end
         local col = trace_ray(Camera.getray(cam, u, v), 0)
       ## else
         local col: vec3
         for i=1,NUMSAMPLES do
-          local v, u = (y + math.random() - 0.5) / (@float)(SCREEN_HEIGHT), (x + math.random() - 0.5) / (@float)(SCREEN_WIDTH)
+          local v, u = (y + math.fastrand() - 0.5) / SCREEN_HEIGHT, (x + math.fastrand() - 0.5) / SCREEN_WIDTH
           col = col + trace_ray(Camera.getray(cam, u, v), 0)
         end
         col = col / NUMSAMPLES
@@ -224,9 +219,9 @@ local function world_init()
   local lookat = vec3{0,1,0}
   local vup = vec3{0,1,0}
   local vfov = 59
-  local aspect = SCREEN_WIDTH/(@float)(SCREEN_HEIGHT)
-  local aperture: float = 0--0.1
-  local focusdist: float = 10
+  local aspect = SCREEN_WIDTH/SCREEN_HEIGHT
+  local aperture: number = 0--0.1
+  local focusdist: number = 10
   cam = Camera.create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)
 end
 

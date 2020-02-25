@@ -4,9 +4,9 @@ global Perlin = @record{}
 
 local perlin: record{
   rands: array(vec3,PERLIN_SIZE),
-  permx: array(int,PERLIN_SIZE),
-  permy: array(int,PERLIN_SIZE),
-  permz: array(int,PERLIN_SIZE)
+  permx: array(integer,PERLIN_SIZE),
+  permy: array(integer,PERLIN_SIZE),
+  permz: array(integer,PERLIN_SIZE)
 }
 
 function Perlin.generate()
@@ -15,19 +15,19 @@ function Perlin.generate()
   end
 end
 
-function Perlin.permute(perm: array(int,PERLIN_SIZE)*)
+function Perlin.permute(perm: array(integer,PERLIN_SIZE)*)
   for i=0,PERLIN_SIZE-1 do
-    perm[i] = (@int)(i)
+    perm[i] = (@integer)(i)
   end
   for i=PERLIN_SIZE-1,1,-1 do
-    local target = (@int)(math.random()*(i+1))
+    local target = (@integer)(math.random()*(i+1))
     perm[i], perm[target] = perm[target], perm[i]
   end
 end
 
-local function trilinear_interp(c: vec3[2][2][2], u: float, v: float, w: float)
+local function trilinear_interp(c: vec3[2][2][2], u: number, v: number, w: number)
   u, v, w = u*u*(3-2*u), v*v*(3-2*v), w*w*(3-2*w)
-  local accum: float = 0
+  local accum: number = 0
   for i=0,1 do
     for j=0,1 do
       for k=0,1 do
@@ -43,9 +43,9 @@ local function trilinear_interp(c: vec3[2][2][2], u: float, v: float, w: float)
   return accum
 end
 
-function Perlin.noise(p: vec3): float
+function Perlin.noise(p: vec3): number
   local u, v, w = p.x - math.floor(p.x), p.y - math.floor(p.y), p.z - math.floor(p.z)
-  local pi, pj, pk = (@int)(math.floor(p.x)), (@int)(math.floor(p.y)), (@int)(math.floor(p.z))
+  local pi, pj, pk = (@integer)(math.floor(p.x)), (@integer)(math.floor(p.y)), (@integer)(math.floor(p.z))
   local c: vec3[2][2][2]
   for i=0,1 do
     for j=0,1 do
@@ -60,9 +60,9 @@ function Perlin.noise(p: vec3): float
   return trilinear_interp(c, u, v, w)
 end
 
-function Perlin.turb(p: vec3, depth: int)
-  local accum: float = 0
-  local weight: float = 1
+function Perlin.turb(p: vec3, depth: integer)
+  local accum: number = 0
+  local weight: number = 1
   for i=0,depth-1 do
     accum = accum + weight * Perlin.noise(p)
     weight = weight * 0.5

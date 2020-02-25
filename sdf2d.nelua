@@ -1,9 +1,10 @@
 --TODO: dead code elimination
 --TODO: better side effects detection
 
-## strict = true
 ## cflags '-O3 -march=native -ffast-math -fno-plt -fopenmp -g'
-## FLOAT32 = true
+## primtypes.number = primtypes.float32
+## primtypes.integer = primtypes.int32
+## primtypes.uinteger = primtypes.uint32
 
 require 'mathx'
 require 'vec2'
@@ -17,23 +18,23 @@ local SCREEN_HEIGHT <comptime> = 540
 local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local iResolution <const> = vec2{SCREEN_WIDTH, SCREEN_HEIGHT}
 local iInvResolution <const> = vec2{1/SCREEN_WIDTH, 1/SCREEN_HEIGHT}
-local iTime: float
+local iTime: number
 
-local function sd_circle(p: vec2, r: float): float
+local function sd_circle(p: vec2, r: number): number
   return #p - r
 end
 
-local function sd_vline(p: vec2, r: float): float
+local function sd_vline(p: vec2, r: number): number
   return math.abs(p.x) - r
 end
 
-local function sd_box(p: vec2, r: vec2): float
+local function sd_box(p: vec2, r: vec2): number
   local d = vec2.abs(p) - r
   return # (vec2.max(d, vec2{0,0})) + math.min(math.max(d.x,d.y), 0.0)
 end
 
-local function map(p: vec2): float
-  local d: float
+local function map(p: vec2): number
+  local d: number
   p = p * 10.0
   d = sd_circle(p - vec2{-10.0*math.fastsin(iTime),5.0}, 1.0)
   d = math.min(d, sd_vline(p - vec2{-5.0,5.0}, 1.0))
@@ -42,7 +43,7 @@ local function map(p: vec2): float
   return d
 end
 
-local function get_distance_field_color(d: float)
+local function get_distance_field_color(d: number)
   local outcolor <const> = vec3{0.9,0.6,0.3}
   local incolor <const> = vec3{0.3,0.6,0.9}
   local boundcolor <const> = vec3{1.0,1.0,1.0}
@@ -74,7 +75,7 @@ local function main_image(fragcoord: vec2)
 end
 
 local function draw()
-  --## cemit '#pragma omp parallel for schedule(dynamic)'
+  ## cemit '#pragma omp parallel for schedule(dynamic)'
   for y=0,<SCREEN_HEIGHT do
     for x=0,<SCREEN_WIDTH do
       local fragcolor = main_image(vec2{x,y})

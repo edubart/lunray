@@ -1,7 +1,7 @@
-global vec3 --[[<aligned(16)>]] = @record{
-  x: float,
-  y: float,
-  z: float
+global vec3 = @record{
+  x: number,
+  y: number,
+  z: number
 }
 ## vec3.value.is_vec3 = true
 
@@ -9,7 +9,7 @@ local is_vec3_or_arithmetic = #[concept(function(b)
   return b.type.is_vec3 or b.type.is_arithmetic
 end)]#
 
-function vec3.__add(a: vec3, b: is_vec3_or_arithmetic): vec3
+function vec3.__add(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec3{a.x+b, a.y+b, a.z+b}
   ## else
@@ -17,7 +17,7 @@ function vec3.__add(a: vec3, b: is_vec3_or_arithmetic): vec3
   ## end
 end
 
-function vec3.__sub(a: vec3, b: is_vec3_or_arithmetic): vec3
+function vec3.__sub(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec3{a.x-b, a.y-b, a.z-b}
   ## else
@@ -25,7 +25,7 @@ function vec3.__sub(a: vec3, b: is_vec3_or_arithmetic): vec3
   ## end
 end
 
-function vec3.__mul(a: vec3, b: is_vec3_or_arithmetic): vec3
+function vec3.__mul(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec3{a.x*b, a.y*b, a.z*b}
   ## else
@@ -33,56 +33,56 @@ function vec3.__mul(a: vec3, b: is_vec3_or_arithmetic): vec3
   ## end
 end
 
-function vec3.__div(a: vec3, b: is_vec3_or_arithmetic): vec3
+function vec3.__div(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
-    local k: float = 1 / b
+    local k: number = 1 / b
     return vec3{a.x*k, a.y*k, a.z*k}
   ## else
     return vec3{a.x/b.x, a.y/b.y, a.z/b.z}
   ## end
 end
 
-function vec3.__unm(a: vec3): vec3
+function vec3.__unm(a: vec3): vec3 <inline,nosideeffect>
   return vec3{-a.x, -a.y, -a.z}
 end
 
-function vec3.addmul(a: vec3, b: vec3, factor: float): vec3
+function vec3.addmul(a: vec3, b: vec3, factor: number): vec3 <inline,nosideeffect>
   return vec3{a.x+factor*b.x, a.y+factor*b.y, a.z+factor*b.z}
 end
 
-function vec3.min(a: vec3, b: vec3): vec3
+function vec3.min(a: vec3, b: vec3): vec3 <inline,nosideeffect>
   return vec3{math.min(a.x, b.x), math.min(a.y, b.y), math.min(a.z, b.z)}
 end
 
-function vec3.dot(a: vec3, b: vec3): float
+function vec3.dot(a: vec3, b: vec3): number <inline,nosideeffect>
   return a.x*b.x + a.y*b.y + a.z*b.z
 end
 
-function vec3.cross(a: vec3, b: vec3): vec3
+function vec3.cross(a: vec3, b: vec3): vec3 <inline,nosideeffect>
   return vec3{a.y*b.z - a.z*b.y, a.z*b.x - a.x*b.z, a.x*b.y - a.y*b.x}
 end
 
-function vec3.sqrt(a: vec3): vec3
+function vec3.sqrt(a: vec3): vec3 <inline,nosideeffect>
   return vec3{math.sqrt(a.x), math.sqrt(a.y), math.sqrt(a.z)}
 end
 
-function vec3.squaredlength(v: vec3): float
+function vec3.squaredlength(v: vec3): number <inline,nosideeffect>
   return v.x*v.x + v.y*v.y + v.z*v.z
 end
 
-function vec3.length(v: vec3): float
+function vec3.length(v: vec3): number <inline,nosideeffect>
   return math.sqrt(vec3.squaredlength(v))
 end
 
-function vec3.__len(v: vec3): float
+function vec3.__len(v: vec3): number <inline,nosideeffect>
   return math.sqrt(vec3.squaredlength(v))
 end
 
-function vec3.unit(v: vec3): vec3
+function vec3.unit(v: vec3): vec3 <inline,nosideeffect>
   return v / #v
 end
 
-function vec3.lerp(a: vec3, b: vec3, t: float): vec3
+function vec3.lerp(a: vec3, b: vec3, t: number): vec3 <inline,nosideeffect>
   return a * (1-t) + b * t
 end
 
@@ -90,10 +90,10 @@ function vec3.print(v: vec3)
   print(v.x, v.y, v.z)
 end
 
-function vec3.rotvec(v: vec3, axis: vec3, theta: float): vec3
+function vec3.rotvec(v: vec3, axis: vec3, theta: number): vec3
   local n = vec3.unit(axis)
   local w = vec3.cross(n, v)
-  local sint, cost = math.sin(theta), math.cos(theta)
+  local sint, cost = math.fastsin(theta), math.fastcos(theta)
   local ns = vec3.dot(v, n) * (1 - cost)
   return n * ns + w * sint + v * cost
 end
@@ -101,20 +101,20 @@ end
 function vec3.random_in_unit_sphere(): vec3
   local p: vec3
   repeat
-    p = 2 * vec3{math.random(), math.random(), math.random()} - vec3{1,1,1}
+    p = 2 * vec3{math.fastrand(), math.fastrand(), math.fastrand()} - vec3{1,1,1}
   until vec3.squaredlength(p) < 1 and vec3.squaredlength(p) > 0.1
   return p
 end
 
-function vec3.random_in_disk(length: float): vec3
-  local theta = math.random()*math.pi*2
-  local sint, cost = math.sin(theta), math.cos(theta)
-  local rlen = math.sqrt(math.random())*length
+function vec3.random_in_disk(length: number): vec3
+  local theta = math.fastrand()*math.tau
+  local sint, cost = math.fastsin(theta), math.fastcos(theta)
+  local rlen = math.sqrt(math.fastrand())*length
   return vec3{rlen*cost, rlen*sint, 0}
 end
 
 function vec3.random_in_hemisphere(n: vec3)
-  local theta, len = math.random()*2*math.pi, math.random()
+  local theta, len = math.fastrand()*math.tau, math.fastrand()
   local w
   if math.abs(n.y) > 0.5 then
     w = vec3{1,0,0}
@@ -123,7 +123,7 @@ function vec3.random_in_hemisphere(n: vec3)
   end
   local u = vec3.unit(vec3.cross(n, w))
   local v = vec3.cross(u, n)
-  local sint, cost = math.sin(theta), math.cos(theta)
+  local sint, cost = math.fastsin(theta), math.fastcos(theta)
   local r = math.sqrt(len)
   local rx, ry, rz = r*cost, r*sint, math.sqrt(1 - len)
   local rr = u * rx + v * ry + n * rz

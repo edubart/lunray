@@ -1,6 +1,6 @@
 global Sphere = @record{
   center: vec3,
-  radius: float,
+  radius: number,
   mat: Material
 }
 
@@ -13,14 +13,14 @@ function Sphere.get_uv(p: vec3): vec2
   }
 end
 
-function Sphere:hit(r: Ray, tmin: float, tmax: float): (boolean, Hit)
+function Sphere:hit(r: Ray, tmin: number, tmax: number): (boolean, Hit)
   local oc = r.origin - self.center
   local a = vec3.squaredlength(r.direction)
   local b = vec3.dot(oc, r.direction)
   local c = vec3.squaredlength(oc) - self.radius*self.radius
   local discriminant = b*b - a*c
   local rec: Hit
-  local t: float
+  local t: number
   if discriminant > 0 then
     local droot = math.sqrt(discriminant)
     local ainv = 1 / a

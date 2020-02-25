@@ -1,29 +1,17 @@
-## strict = true
-
 require 'math'
 
-global int = @int64
+global math.tau: number <comptime> = 6.2831853071795865
 
-## if FLOAT64 then
-global float = @float64
-global math.inf: float <const,cimport'INFINITY'>
-## else
-global float = @float32
-global math.inf: float <const,cimport'INFINITY',nodecl>
-## end
-
-global math.tau: float <comptime> = 6.283185307179586
-
-function math.clamp(x: float, min: float, max: float): float
+function math.clamp(x: number, min: number, max: number): number <inline,nosideeffect>
   return math.max(math.min(x, max), min)
 end
 
-function math.smoothstep(edge0: float, edge1: float, x: float): float
+function math.smoothstep(edge0: number, edge1: number, x: number): number <inline,nosideeffect>
   local t = math.clamp((x - edge0) / (edge1 - edge0), 0, 1)
   return t * t * (3 - 2 * t)
 end
 
-function math.step(edge: float, x: float): float
+function math.step(edge: number, x: number): number <inline,nosideeffect>
   if x < edge then
     return 0
   else
@@ -31,7 +19,7 @@ function math.step(edge: float, x: float): float
   end
 end
 
-function math.fastexp4(x: float): float
+function math.fastexp4(x: number): number <inline,nosideeffect>
   x = 1.0 + x * (1.0 / 17.0)
   local t = x
   ## for i=1,4 do
@@ -40,7 +28,7 @@ function math.fastexp4(x: float): float
   return math.max(t*x,0.0)
 end
 
-function math.fastexp8(x: float): float
+function math.fastexp8(x: number): number <inline,nosideeffect>
   x = 1.0 + x * (1.0 / 257.0)
   local t = x
   ## for i=1,8 do
@@ -49,11 +37,11 @@ function math.fastexp8(x: float): float
   return math.max(t*x,0.0)
 end
 
-function math.fract(x: float): float
+function math.fract(x: number): number <inline,nosideeffect>
   return x - math.floor(x)
 end
 
-function math.fastsin(x: float): float
+function math.fastsin(x: number): number <inline,nosideeffect>
   x = x*(1.0/math.pi)
   local xi = math.floor(x)
   local xs = xi - 2*math.floor(0.5*x)
@@ -61,6 +49,12 @@ function math.fastsin(x: float): float
   return (1-2*xs)*(4*xf)*(1-xf)
 end
 
-function math.fastcos(x: float): float
+function math.fastcos(x: number): number <inline,nosideeffect>
   return math.fastsin(x + math.pi/2)
+end
+
+local seed: uint32 = 1337
+function math.fastrand(): number <inline,nosideeffect>
+  seed = 214013 * seed + 2531011
+  return (seed >> 8) / (1 << 24)
 end

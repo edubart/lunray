@@ -8,7 +8,7 @@ global Material = @record{
   kind: MATERIALS,
   albedo: Texture,
   emitting: Texture,
-  fuzz: float
+  fuzz: number
 }
 
 global Hit = @record{
@@ -16,14 +16,14 @@ global Hit = @record{
   normal: vec3,
   uv: vec2,
   mat: Material*,
-  t: float
+  t: number
 }
 
 local function reflect(v: vec3, n: vec3): vec3
   return v - n * (2*vec3.dot(v,n))
 end
 
-local function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
+local function refract(v: vec3, n: vec3, ni: number): (boolean, vec3)
   local uv = vec3.unit(v)
   local dt = vec3.dot(uv, n)
   local discriminant = 1 - ni*ni*(1-dt*dt)
@@ -37,7 +37,7 @@ local function refract(v: vec3, n: vec3, ni: float): (boolean, vec3)
   end
 end
 
-local function schlick(cosine: float, refidx: float): float
+local function schlick(cosine: number, refidx: number): number
   local r0 = (1-refidx) / (1+refidx)
   r0 = r0*r0
   return r0 + (1-r0)*((1-cosine)^5)
@@ -67,7 +67,7 @@ end
 
 function Material:dielectric_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
   local outward_normal: vec3
-  local ni: float, reflectprob: float
+  local ni: number, reflectprob: number
   local cosine = vec3.dot(r.direction, rec.normal) / #r.direction
   if vec3.dot(r.direction, rec.normal) > 0 then
     cosine = math.sqrt(1 - self.fuzz*self.fuzz*(1-cosine*cosine))
@@ -86,7 +86,7 @@ function Material:dielectric_scatter(r: Ray, rec: Hit): (boolean, vec3, Ray)
     else
       reflectprob = 1
     end
-    if math.random() < reflectprob then
+    if math.fastrand() < reflectprob then
       scattered.direction = reflect(vec3.unit(r.direction), rec.normal)
     else
       scattered.direction = refracted

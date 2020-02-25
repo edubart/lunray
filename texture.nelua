@@ -7,7 +7,7 @@ global TEXTURES = @enum {
 global Texture = @record {
   kind: TEXTURES,
   color: vec3,
-  scale: float
+  scale: number
 }
 
 function Texture:color_color(uv: vec2, p: vec3): vec3
@@ -15,7 +15,7 @@ function Texture:color_color(uv: vec2, p: vec3): vec3
 end
 
 function Texture:checker_color(uv: vec2, p: vec3): vec3
-  local sines = math.sin(10*p.x)*math.sin(10*p.y)*math.sin(10*p.z)
+  local sines = math.fastsin(10*p.x)*math.fastsin(10*p.y)*math.fastsin(10*p.z)
   if sines < 0 then
     return vec3{1,1,1}
   else
@@ -24,7 +24,7 @@ function Texture:checker_color(uv: vec2, p: vec3): vec3
 end
 
 function Texture:noise_color(uv: vec2, p: vec3): vec3
-  local ticks: float = SDL_GetTicks() / 10000
+  local ticks: number = SDL_GetTicks() / 10000
   local offset = vec3{ticks, ticks, ticks}
   local noise = Perlin.turb((p + offset) * self.scale, 1)
 

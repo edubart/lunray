@@ -1,6 +1,6 @@
 global vec2 = @record {
-  x: float,
-  y: float
+  x: number,
+  y: number
 }
 ## vec2.value.is_vec2 = true
 
@@ -34,14 +34,14 @@ end
 
 function vec2.__div(a: vec2, b: is_vec2_or_arithmetic): vec2
   ## if b.type.is_arithmetic then
-    local k: float = 1 / b
+    local k: number = 1 / b
     return vec2{a.x * k, a.y * k}
   ## else
     return vec2{a.x / b.x, a.y / b.y}
   ## end
 end
 
-function vec2.__len(a: vec2): float
+function vec2.__len(a: vec2): number
   return math.sqrt(a.x * a.x + a.y * a.y)
 end
 

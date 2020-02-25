@@ -9,11 +9,11 @@ global Camera = @record{
   u: vec3,
   v: vec3,
   w: vec3,
-  lensradius: float,
-  vfov: float,
-  aspect: float,
-  aperture: float,
-  focusdist: float,
+  lensradius: number,
+  vfov: number,
+  aspect: number,
+  aperture: number,
+  focusdist: number,
 }
 
 function Camera:update()
@@ -35,7 +35,7 @@ function Camera:update()
 end
 
 function Camera.create(lookfrom: vec3, lookat: vec3, vup: vec3,
-                       vfov: float, aspect: float, aperture: float, focusdist: float): Camera
+                       vfov: number, aspect: number, aperture: number, focusdist: number): Camera
   if aperture == 0 then
     focusdist = 1
   end
@@ -52,7 +52,7 @@ function Camera.create(lookfrom: vec3, lookat: vec3, vup: vec3,
   return self
 end
 
-function Camera:getray(u: float, v: float)
+function Camera:getray(u: number, v: number)
   local r: Ray
   if self.aperture ~= 0 then
     local rd = vec3.random_in_disk(self.lensradius)
@@ -66,7 +66,7 @@ function Camera:getray(u: float, v: float)
   return r
 end
 
-function Camera:rotate(x: float, y: float)
+function Camera:rotate(x: number, y: number)
   local dir = self.lookat - self.origin
   dir = vec3.rotvec(dir, self.u, x)
   dir = vec3.rotvec(dir, self.v, y)
@@ -74,7 +74,7 @@ function Camera:rotate(x: float, y: float)
   self:update()
 end
 
-function Camera:translate(x: float, y: float, z: float)
+function Camera:translate(x: number, y: number, z: number)
   local trans = vec3{0,0,0}
   trans = trans + self.u *  x
   trans = trans + self.w * -z
