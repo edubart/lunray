@@ -1,4 +1,4 @@
-global vec2 = @record {
+global vec2 <aligned(8)> = @record {
   x: number,
   y: number
 }
@@ -8,7 +8,7 @@ local is_vec2_or_arithmetic = #[concept(function(b)
   return b.type.is_vec2 or b.type.is_arithmetic
 end)]#
 
-function vec2.__add(a: vec2, b: is_vec2_or_arithmetic): vec2
+function vec2.__add(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec2{a.x + b, a.y + b}
   ## else
@@ -16,7 +16,7 @@ function vec2.__add(a: vec2, b: is_vec2_or_arithmetic): vec2
   ## end
 end
 
-function vec2.__sub(a: vec2, b: is_vec2_or_arithmetic): vec2
+function vec2.__sub(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec2{a.x - b, a.y - b}
   ## else
@@ -24,7 +24,7 @@ function vec2.__sub(a: vec2, b: is_vec2_or_arithmetic): vec2
   ## end
 end
 
-function vec2.__mul(a: vec2, b: is_vec2_or_arithmetic): vec2
+function vec2.__mul(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec2{a.x * b, a.y * b}
   ## else
@@ -32,7 +32,7 @@ function vec2.__mul(a: vec2, b: is_vec2_or_arithmetic): vec2
   ## end
 end
 
-function vec2.__div(a: vec2, b: is_vec2_or_arithmetic): vec2
+function vec2.__div(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     local k: number = 1 / b
     return vec2{a.x * k, a.y * k}
@@ -41,14 +41,14 @@ function vec2.__div(a: vec2, b: is_vec2_or_arithmetic): vec2
   ## end
 end
 
-function vec2.__len(a: vec2): number
+function vec2.__len(a: vec2): number <inline,nosideeffect>
   return math.sqrt(a.x * a.x + a.y * a.y)
 end
 
-function vec2.abs(a: vec2): vec2
+function vec2.abs(a: vec2): vec2 <inline,nosideeffect>
   return vec2{math.abs(a.x), math.abs(a.y)}
 end
 
-function vec2.max(a: vec2, b: vec2): vec2
+function vec2.max(a: vec2, b: vec2): vec2 <inline,nosideeffect>
   return vec2{math.max(a.x, b.x), math.max(a.y, b.y)}
 end

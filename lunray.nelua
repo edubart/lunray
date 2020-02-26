@@ -1,20 +1,23 @@
 -- optimize for performance
-## cflags '-O2 -ffast-math -march=native -fno-plt -fopenmp'
+## cflags '-O2 -ffast-math -march=native -fno-plt'
 
 ##[[
 primtypes.number = primtypes.float32
 primtypes.integer = primtypes.int32
 primtypes.uinteger = primtypes.uint32
-CARTOONIZED = false
 DENOISER = true
+--CARTOONIZED = true
+--OPENMP = true
+
+if OPENMP then
+ cflags '-fopenmp'
+end
 ]]
 
-require 'math'
 require 'mathx'
 require 'vec2'
 require 'vec3'
 require 'argbcolor'
---require 'mat4'
 require 'perlin'
 require 'sdl2'
 require 'ray'
@@ -56,7 +59,7 @@ local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: number, tmax: number): 
 end
 
 local function sky_color(direction: vec3)
-  local t = 0.5*(direction.y/#direction + 1)
+  local t = 0.5*(direction.y + 1)
   return vec3.lerp(vec3{1,1,1}, vec3{0.5, 0.7, 1}, t)
 end
 
@@ -89,7 +92,9 @@ local function trace_rays() <noinline>
     ntem = ntem + 1
   ## end
   local yoff = window.height - 1
-  ## cemit '#pragma omp parallel for schedule(dynamic)'
+  ##[[if OPENMP then
+    cemit '#pragma omp parallel for schedule(dynamic)'
+  end]]
   for y=0,<SCREEN_HEIGHT do
     for x=0,<SCREEN_WIDTH do
       ## if NUMSAMPLES.value:tonumber() == 1 then
@@ -136,36 +141,36 @@ local function poll_events() <noinline>
       local kevent = (@SDL_KeyboardEvent*)(&event)
       switch kevent.keysym.sym
       case SDLK_UP then
-        cam:rotate(0.1, 0)
+        cam:rotate(0.05, 0)
         refresh()
       case SDLK_DOWN then
-        cam:rotate(-0.1, 0)
+        cam:rotate(-0.05, 0)
         refresh()
       case SDLK_RIGHT then
-        cam:rotate(0, -0.1)
+        cam:rotate(0, -0.05)
         refresh()
       case SDLK_LEFT then
-        cam:rotate(0, 0.1)
+        cam:rotate(0, 0.05)
         refresh()
       case SDLK_ESCAPE then
         return false
       case SDLK_w then
-        cam:translate(0, 0, 0.1)
+        cam:translate(0, 0, 0.05)
         refresh()
       case SDLK_s then
-        cam:translate(0, 0, -0.1)
+        cam:translate(0, 0, -0.05)
         refresh()
       case SDLK_a then
-        cam:translate(-0.1, 0, 0)
+        cam:translate(-0.05, 0, 0)
         refresh()
       case SDLK_d then
-        cam:translate(0.1, 0, 0)
+        cam:translate(0.05, 0, 0)
         refresh()
       case SDLK_e then
-        cam:translate(0, 0.1, 0)
+        cam:translate(0, 0.05, 0)
         refresh()
       case SDLK_q then
-        cam:translate(0, -0.1, 0)
+        cam:translate(0, -0.05, 0)
         refresh()
       end
     end
@@ -173,35 +178,30 @@ local function poll_events() <noinline>
   return true
 end
 
-
 local function world_init()
-  world[1] = Sphere{center={ 0,-1000,0}, radius=1000, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.CHECKER, color={0.2, 0.3, 0.1}, scale=10}}}
+  world[1] = Sphere{center={ 0,-1000,0}, radius=1000, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.CHECKER, color={0.1, 0.1, 0.1}, scale=10}}}
   world[3] = Sphere{center={ 0,    1,0}, radius=1, mat={MATERIALS.DIELECTRIC, fuzz=1.5}}
   world[2] = Sphere{
-    center={-4,1,0},
+    center={-3,1,0},
     radius=1,
     mat={
       MATERIALS.LAMBERTIAN,
       albedo={
         TEXTURES.NOISE,
-        color={1, 1, 1},
-        scale=9
-      },
-      emitting={
-        TEXTURES.COLOR,
-        color={0.9,0.3,0.0}
+        color={0.9, 0.1, 0.1},
+        scale=10
       }
     }
   }
-  world[4] = Sphere{center={ 4,    1,0}, radius=1, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.7, 0.6, 0.5}}}}
+  world[4] = Sphere{center={ 3,    1,0}, radius=1, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.7, 0.6, 0.5}}}}
 
   local i = 5
-  local NUMSPHERES <comptime> = 1
+  local NUMSPHERES <comptime> = 3
   for a=-NUMSPHERES,<NUMSPHERES do
     for b=-NUMSPHERES,<NUMSPHERES do
       local choosemat = math.random()
-      local center = vec3{a+0.9*math.random(), 0.2, b+0.9*math.random()}
-      if # (center - vec3{4,0.2,0}) > 0.9 then
+      local center = vec3{-4+8*math.random(), 0.2, -4+8*math.random()}
+      --if # (center - vec3{4,0.2,0}) > 0.9 then
         if choosemat < 0.8 then --diffuse
           world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.COLOR, {math.random()*math.random(), math.random()*math.random(), math.random()*math.random()}}}}
         elseif choosemat < 0.95 then -- metal
@@ -210,18 +210,22 @@ local function world_init()
           world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.DIELECTRIC, fuzz=1.5}}
         end
         i = i + 1
-      end
+      --end
     end
   end
   worldsize = i
 
-  local lookfrom = vec3{2,3,2}
-  local lookat = vec3{0,1,0}
+  for i=0,<worldsize do
+    Sphere.update(world[i])
+  end
+
+  local lookfrom = vec3{5.1,1.2,2.4}
+  local lookat = vec3{2.0,1,0.8}
   local vup = vec3{0,1,0}
   local vfov = 59
   local aspect = SCREEN_WIDTH/SCREEN_HEIGHT
-  local aperture: number = 0--0.1
-  local focusdist: number = 10
+  local aperture: number = 0.05
+  local focusdist: number = 4
   cam = Camera.create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)
 end
 

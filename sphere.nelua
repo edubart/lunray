@@ -1,5 +1,7 @@
 global Sphere = @record{
   center: vec3,
+  _radius2: number,
+  _invradius: number,
   radius: number,
   mat: Material
 }
@@ -7,36 +9,40 @@ global Sphere = @record{
 function Sphere.get_uv(p: vec3): vec2
   local phi = math.atan(p.z, p.x)
   local theta = math.asin(p.y)
-  return vec2{
-    1 - ((phi + math.pi) / (2*math.pi)),
-    (theta + math.pi/2) / math.pi,
-  }
+  return vec2{1 - ((phi + math.pi) / math.tau), (theta + math.pi/2) / math.pi }
+end
+
+function Sphere:update()
+  self._invradius = 1 / self.radius
+  self._radius2 = self.radius*self.radius
 end
 
 function Sphere:hit(r: Ray, tmin: number, tmax: number): (boolean, Hit)
   local oc = r.origin - self.center
   local a = vec3.squaredlength(r.direction)
   local b = vec3.dot(oc, r.direction)
-  local c = vec3.squaredlength(oc) - self.radius*self.radius
+  local c = vec3.squaredlength(oc) - self._radius2
   local discriminant = b*b - a*c
   local rec: Hit
   local t: number
   if discriminant > 0 then
     local droot = math.sqrt(discriminant)
     local ainv = 1 / a
-    t = (-b - droot) * ainv
+    local t1 = -b * ainv
+    local t2 = droot * ainv
+    t = t1 - t2
     if t < tmax and t > tmin then
       goto hitted
     end
-    t = (-b + droot) * ainv
+    t = t1 + t2
     if t < tmax and t > tmin then
       goto hitted
     end
   end
   do return false, rec end
 ::hitted::
-  rec.p = Ray.pointat(r, t)
-  rec.normal = (rec.p - self.center) / self.radius
+  rec.p = r:pointat(t)
+  rec.normal = (rec.p - self.center) * self._invradius
   rec.uv = Sphere.get_uv(rec.normal)
   rec.mat = &self.mat
   rec.t = t

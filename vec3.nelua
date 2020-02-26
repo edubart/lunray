@@ -1,4 +1,4 @@
-global vec3 = @record{
+global vec3 <aligned(16)> = @record{
   x: number,
   y: number,
   z: number
@@ -46,10 +46,6 @@ function vec3.__unm(a: vec3): vec3 <inline,nosideeffect>
   return vec3{-a.x, -a.y, -a.z}
 end
 
-function vec3.addmul(a: vec3, b: vec3, factor: number): vec3 <inline,nosideeffect>
-  return vec3{a.x+factor*b.x, a.y+factor*b.y, a.z+factor*b.z}
-end
-
 function vec3.min(a: vec3, b: vec3): vec3 <inline,nosideeffect>
   return vec3{math.min(a.x, b.x), math.min(a.y, b.y), math.min(a.z, b.z)}
 end
@@ -93,22 +89,14 @@ end
 function vec3.rotvec(v: vec3, axis: vec3, theta: number): vec3
   local n = vec3.unit(axis)
   local w = vec3.cross(n, v)
-  local sint, cost = math.fastsin(theta), math.fastcos(theta)
+  local sint, cost = math.sin(theta), math.cos(theta)
   local ns = vec3.dot(v, n) * (1 - cost)
   return n * ns + w * sint + v * cost
 end
 
-function vec3.random_in_unit_sphere(): vec3
-  local p: vec3
-  repeat
-    p = 2 * vec3{math.fastrand(), math.fastrand(), math.fastrand()} - vec3{1,1,1}
-  until vec3.squaredlength(p) < 1 and vec3.squaredlength(p) > 0.1
-  return p
-end
-
 function vec3.random_in_disk(length: number): vec3
   local theta = math.fastrand()*math.tau
-  local sint, cost = math.fastsin(theta), math.fastcos(theta)
+  local sint, cost = math.sin(theta), math.cos(theta)
   local rlen = math.sqrt(math.fastrand())*length
   return vec3{rlen*cost, rlen*sint, 0}
 end
@@ -123,7 +111,7 @@ function vec3.random_in_hemisphere(n: vec3)
   end
   local u = vec3.unit(vec3.cross(n, w))
   local v = vec3.cross(u, n)
-  local sint, cost = math.fastsin(theta), math.fastcos(theta)
+  local sint, cost = math.sin(theta), math.cos(theta)
   local r = math.sqrt(len)
   local rx, ry, rz = r*cost, r*sint, math.sqrt(1 - len)
   local rr = u * rx + v * ry + n * rz

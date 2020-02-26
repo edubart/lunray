@@ -63,6 +63,7 @@ function Camera:getray(u: number, v: number)
     r.origin = self.origin
     r.direction = self.lower_left_corner_direction + self.horizontal * u + self.vertical * v
   end
+  r.direction = r.direction:unit()
   return r
 end
 
