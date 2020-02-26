@@ -1,8 +1,9 @@
-## cflags '-O3 -march=native -ffast-math -fno-plt -fopenmp -g'
-## primtypes.number = primtypes.float32
-## primtypes.integer = primtypes.int32
-## primtypes.uinteger = primtypes.uint32
+##[[
+--OPENMP = true
+--EMSCRIPTEN = true
+]]
 
+require 'config'
 require 'mathx'
 require 'vec2'
 require 'vec3'
@@ -16,6 +17,10 @@ local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local iResolution <const> = vec2{SCREEN_WIDTH, SCREEN_HEIGHT}
 local iInvResolution <const> = vec2{1/SCREEN_WIDTH, 1/SCREEN_HEIGHT}
 local iTime: number
+local window: Window
+local lastticks = SDL_GetTicks()
+local fps = 0
+local quit = false
 
 local function sd_circle(p: vec2, r: number): number
   return #p - r
@@ -72,13 +77,16 @@ local function main_image(fragcoord: vec2)
 end
 
 local function draw()
-  ## cemit '#pragma omp parallel for schedule(dynamic)'
+  ##[[if OPENMP then
+    cemit '#pragma omp parallel for schedule(dynamic)'
+  end]]
   for y=0,<SCREEN_HEIGHT do
     for x=0,<SCREEN_WIDTH do
       local fragcolor = main_image(vec2{x,y})
       pixels[SCREEN_HEIGHT-1-y][x] = argbcolor.fromvec3(fragcolor)
     end
   end
+  window:uploadpixels(&pixels[0][0])
 end
 
 local function poll_events()
@@ -86,33 +94,41 @@ local function poll_events()
   while SDL_PollEvent(event) ~= 0 do
     switch event.type
     case SDL_QUIT then
-      return false
+      quit = true
     end
   end
-  return true
+end
+
+local function frame()
+  local ticks = SDL_GetTicks()
+  iTime = ticks / 1000.0
+  if ticks - lastticks >= 1000 then
+    print('FPS', fps)
+    lastticks = ticks
+    fps = 0
+  end
+
+  poll_events()
+  draw()
+  fps = fps + 1
+end
+
+local function emframe(context: pointer) <codename 'emframe'>
+  frame()
 end
 
 local function go()
-  local window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT)
+  window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT)
 
-  local lastticks = SDL_GetTicks()
-  local fps = 0
-  repeat
-    local ticks = SDL_GetTicks()
-    iTime = ticks / 1000.0
-    if ticks - lastticks >= 1000 then
-      print('FPS', fps)
-      lastticks = ticks
-      fps = 0
-    end
+  ## if not EMSCRIPTEN then
+    repeat
+      frame()
+    until quit
 
-    local quit = not poll_events()
-    draw()
-    window:uploadpixels(&pixels[0][0])
-    fps = fps + 1
-  until quit
-
-  window:destroy()
+    window:destroy()
+  ## else
+    ## cemit 'emscripten_set_main_loop_arg(emframe, 0, -1, 1);'
+  ## end
 end
 
 go()

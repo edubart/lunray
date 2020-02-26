@@ -1,19 +1,11 @@
--- optimize for performance
-## cflags '-O2 -ffast-math -march=native -fno-plt'
-
 ##[[
-primtypes.number = primtypes.float32
-primtypes.integer = primtypes.int32
-primtypes.uinteger = primtypes.uint32
 DENOISER = true
---CARTOONIZED = true
 --OPENMP = true
-
-if OPENMP then
- cflags '-fopenmp'
-end
+--CARTOONIZED = true
+--EMSCRIPTEN = true
 ]]
 
+require 'config'
 require 'mathx'
 require 'vec2'
 require 'vec3'
@@ -27,8 +19,13 @@ require 'sphere'
 require 'camera'
 require 'window'
 
-local SCREEN_WIDTH <comptime> = 960--480
-local SCREEN_HEIGHT <comptime> = 540--270
+## if EMSCRIPTEN then
+local SCREEN_WIDTH <comptime> = 480
+local SCREEN_HEIGHT <comptime> = 270
+## else
+local SCREEN_WIDTH <comptime> = 960
+local SCREEN_HEIGHT <comptime> = 540
+## end
 local NUMSAMPLES <comptime> = 1
 local MAXDEPTH <comptime> = 8
 
@@ -42,6 +39,9 @@ local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
 local ntem = 0
 ## end
+local lastticks = SDL_GetTicks()
+local fps = 0
+local quit = false
 
 local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: number, tmax: number): (boolean, Hit)
   local rec: Hit
@@ -80,7 +80,7 @@ local function trace_ray(r: Ray, depth: integer): vec3 <noinline>
   return sky_color(r.direction)
 end
 
-local function trace_rays() <noinline>
+local function draw() <noinline>
   ## if DENOISER then
     if ntem == 0 then
       for y=0,<SCREEN_HEIGHT do
@@ -123,59 +123,13 @@ local function trace_rays() <noinline>
       ## end
     end
   end
+  window:uploadpixels(&pixels[0][0])
 end
 
 local function refresh()
   ## if DENOISER then
   ntem = 0
   ## end
-end
-
-local function poll_events() <noinline>
-  local event: SDL_Event
-  while SDL_PollEvent(event) ~= 0 do
-    switch event.type
-    case SDL_QUIT then
-      return false
-    case SDL_KEYDOWN then
-      local kevent = (@SDL_KeyboardEvent*)(&event)
-      switch kevent.keysym.sym
-      case SDLK_UP then
-        cam:rotate(0.05, 0)
-        refresh()
-      case SDLK_DOWN then
-        cam:rotate(-0.05, 0)
-        refresh()
-      case SDLK_RIGHT then
-        cam:rotate(0, -0.05)
-        refresh()
-      case SDLK_LEFT then
-        cam:rotate(0, 0.05)
-        refresh()
-      case SDLK_ESCAPE then
-        return false
-      case SDLK_w then
-        cam:translate(0, 0, 0.05)
-        refresh()
-      case SDLK_s then
-        cam:translate(0, 0, -0.05)
-        refresh()
-      case SDLK_a then
-        cam:translate(-0.05, 0, 0)
-        refresh()
-      case SDLK_d then
-        cam:translate(0.05, 0, 0)
-        refresh()
-      case SDLK_e then
-        cam:translate(0, 0.05, 0)
-        refresh()
-      case SDLK_q then
-        cam:translate(0, -0.05, 0)
-        refresh()
-      end
-    end
-  end
-  return true
 end
 
 local function world_init()
@@ -201,16 +155,14 @@ local function world_init()
     for b=-NUMSPHERES,<NUMSPHERES do
       local choosemat = math.random()
       local center = vec3{-4+8*math.random(), 0.2, -4+8*math.random()}
-      --if # (center - vec3{4,0.2,0}) > 0.9 then
-        if choosemat < 0.8 then --diffuse
-          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.COLOR, {math.random()*math.random(), math.random()*math.random(), math.random()*math.random()}}}}
-        elseif choosemat < 0.95 then -- metal
-          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.5*(1+math.random()), 0.5*(1+math.random()), 0.5*(1+math.random())}}, fuzz=0.5*math.random()}}
-        else -- glass
-          world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.DIELECTRIC, fuzz=1.5}}
-        end
-        i = i + 1
-      --end
+      if choosemat < 0.8 then --diffuse
+        world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.LAMBERTIAN, albedo={TEXTURES.COLOR, {math.random()*math.random(), math.random()*math.random(), math.random()*math.random()}}}}
+      elseif choosemat < 0.95 then -- metal
+        world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.METAL, albedo={TEXTURES.COLOR, {0.5*(1+math.random()), 0.5*(1+math.random()), 0.5*(1+math.random())}}, fuzz=0.5*math.random()}}
+      else -- glass
+        world[i] = Sphere{center=center, radius=0.2, mat={MATERIALS.DIELECTRIC, fuzz=1.5}}
+      end
+      i = i + 1
     end
   end
   worldsize = i
@@ -229,28 +181,82 @@ local function world_init()
   cam = Camera.create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)
 end
 
+local function poll_events() <noinline>
+  local event: SDL_Event
+  while SDL_PollEvent(event) ~= 0 do
+    switch event.type
+    case SDL_QUIT then
+      quit = true
+    case SDL_KEYDOWN then
+      local kevent = (@SDL_KeyboardEvent*)(&event)
+      switch kevent.keysym.sym
+      case SDLK_UP then
+        cam:rotate(0.05, 0)
+        refresh()
+      case SDLK_DOWN then
+        cam:rotate(-0.05, 0)
+        refresh()
+      case SDLK_RIGHT then
+        cam:rotate(0, -0.05)
+        refresh()
+      case SDLK_LEFT then
+        cam:rotate(0, 0.05)
+        refresh()
+      case SDLK_ESCAPE then
+        quit = true
+      case SDLK_w then
+        cam:translate(0, 0, 0.05)
+        refresh()
+      case SDLK_s then
+        cam:translate(0, 0, -0.05)
+        refresh()
+      case SDLK_a then
+        cam:translate(-0.05, 0, 0)
+        refresh()
+      case SDLK_d then
+        cam:translate(0.05, 0, 0)
+        refresh()
+      case SDLK_e then
+        cam:translate(0, 0.05, 0)
+        refresh()
+      case SDLK_q then
+        cam:translate(0, -0.05, 0)
+        refresh()
+      end
+    end
+  end
+end
+
+local function frame()
+  local ticks = SDL_GetTicks()
+  if ticks - lastticks >= 1000 then
+    print('FPS', fps)
+    lastticks = ticks
+    fps = 0
+  end
+
+  poll_events()
+  draw()
+  fps = fps + 1
+end
+
+local function emframe(context: pointer) <codename 'emframe'>
+  frame()
+end
+
 local function go()
   world_init()
   window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT)
 
-  -- draw
-  local lastticks = SDL_GetTicks()
-  local fps = 0
-  repeat
-    local ticks = SDL_GetTicks()
-    if ticks - lastticks >= 1000 then
-      print('FPS', fps)
-      lastticks = ticks
-      fps = 0
-    end
+  ## if not EMSCRIPTEN then
+    repeat
+      frame()
+    until quit
 
-    local quit = not poll_events()
-    trace_rays()
-    Window.uploadpixels(window, &pixels[0][0])
-    fps = fps + 1
-  until quit
-
-  Window.destroy(window)
+    window:destroy()
+  ## else
+    ## cemit 'emscripten_set_main_loop_arg(emframe, 0, -1, 1);'
+  ## end
 end
 
 go()
