@@ -1,4 +1,4 @@
-global vec2 <aligned(8)> = @record {
+global vec2 = @record {
   x: number,
   y: number
 }

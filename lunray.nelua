@@ -34,9 +34,9 @@ local Hitlist = @array(Sphere,500)
 local world: Hitlist
 local cam: Camera
 local window: Window
-local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
+local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT]
 ## if DENOISER then
-local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
+local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT]
 local ntem = 0
 ## end
 local lastticks = SDL_GetTicks()

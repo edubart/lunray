@@ -1,4 +1,4 @@
-global vec3 <aligned(16)> = @record{
+global vec3 = @record{
   x: number,
   y: number,
   z: number

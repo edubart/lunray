@@ -19,17 +19,15 @@ end
 
 function Sphere:hit(r: Ray, tmin: number, tmax: number): (boolean, Hit)
   local oc = r.origin - self.center
-  local a = vec3.squaredlength(r.direction)
   local b = vec3.dot(oc, r.direction)
   local c = vec3.squaredlength(oc) - self._radius2
-  local discriminant = b*b - a*c
+  local discriminant = b*b - c
   local rec: Hit
   local t: number
   if discriminant > 0 then
     local droot = math.sqrt(discriminant)
-    local ainv = 1 / a
-    local t1 = -b * ainv
-    local t2 = droot * ainv
+    local t1 = -b
+    local t2 = droot
     t = t1 - t2
     if t < tmax and t > tmin then
       goto hitted

@@ -13,7 +13,7 @@ require 'window'
 
 local SCREEN_WIDTH <comptime> = 960
 local SCREEN_HEIGHT <comptime> = 540
-local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT] <aligned(16)>
+local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT]
 local iResolution <const> = vec2{SCREEN_WIDTH, SCREEN_HEIGHT}
 local iInvResolution <const> = vec2{1/SCREEN_WIDTH, 1/SCREEN_HEIGHT}
 local iTime: number
