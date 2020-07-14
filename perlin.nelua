@@ -17,10 +17,10 @@ end
 
 function Perlin.permute(perm: array(integer,PERLIN_SIZE)*)
   for i=0,PERLIN_SIZE-1 do
-    perm[i] = (@integer)(i)
+    perm[i] = i
   end
   for i=PERLIN_SIZE-1,1,-1 do
-    local target = (@integer)(math.random()*(i+1))
+    local target = math.random(0, i)
     perm[i], perm[target] = perm[target], perm[i]
   end
 end
