@@ -9,34 +9,43 @@ local is_vec3_or_arithmetic = #[concept(function(b)
   return b.type.is_vec3 or b.type.is_arithmetic
 end)]#
 
-function vec3.__add(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
+function vec3.__add(a: is_vec3_or_arithmetic, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec3{a.x+b, a.y+b, a.z+b}
+  ## elseif a.type.is_arithmetic then
+    return vec3{a+b.x, a+b.y, a+b.z}
   ## else
     return vec3{a.x+b.x, a.y+b.y, a.z+b.z}
   ## end
 end
 
-function vec3.__sub(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
+function vec3.__sub(a: is_vec3_or_arithmetic, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec3{a.x-b, a.y-b, a.z-b}
+  ## elseif a.type.is_arithmetic then
+    return vec3{a-b.x, a-b.y, a-b.z}
   ## else
     return vec3{a.x-b.x, a.y-b.y, a.z-b.z}
   ## end
 end
 
-function vec3.__mul(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
+function vec3.__mul(a: is_vec3_or_arithmetic, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec3{a.x*b, a.y*b, a.z*b}
+  ## elseif a.type.is_arithmetic then
+    return vec3{a*b.x, a*b.y, a*b.z}
   ## else
     return vec3{a.x*b.x, a.y*b.y, a.z*b.z}
   ## end
 end
 
-function vec3.__div(a: vec3, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
+function vec3.__div(a: is_vec3_or_arithmetic, b: is_vec3_or_arithmetic): vec3 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     local k: number = 1 / b
     return vec3{a.x*k, a.y*k, a.z*k}
+  ## elseif a.type.is_arithmetic then
+    local k: number = 1 / a
+    return vec3{k*b.x, k*b.y, k*b.z}
   ## else
     return vec3{a.x/b.x, a.y/b.y, a.z/b.z}
   ## end
