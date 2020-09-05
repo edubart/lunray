@@ -34,16 +34,16 @@ local Hitlist = @array(Sphere,500)
 local world: Hitlist
 local cam: Camera
 local window: Window
-local pixels: argbcolor[SCREEN_WIDTH][SCREEN_HEIGHT]
+local pixels: [SCREEN_HEIGHT][SCREEN_WIDTH]argbcolor
 ## if DENOISER then
-local tempixels: vec3[SCREEN_WIDTH][SCREEN_HEIGHT]
+local tempixels: [SCREEN_HEIGHT][SCREEN_WIDTH]vec3
 local ntem = 0
 ## end
 local lastticks = SDL_GetTicks()
 local fps = 0
 local quit = false
 
-local function Hitlist_hit(self: Hitlist*, r: Ray, tmin: number, tmax: number): (boolean, Hit)
+local function Hitlist_hit(self: *Hitlist, r: Ray, tmin: number, tmax: number): (boolean, Hit)
   local rec: Hit
   local tnear = tmax
   local hashit = false
@@ -188,7 +188,7 @@ local function poll_events() <noinline>
     case SDL_QUIT then
       quit = true
     case SDL_KEYDOWN then
-      local kevent = (@SDL_KeyboardEvent*)(&event)
+      local kevent = (@*SDL_KeyboardEvent)(&event)
       switch kevent.keysym.sym
       case SDLK_UP then
         cam:rotate(0.05, 0)

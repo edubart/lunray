@@ -1,7 +1,7 @@
 global Window = @record {
-  window: SDL_Window*,
-  renderer: SDL_Renderer*,
-  texture: SDL_Texture*,
+  window: *SDL_Window,
+  renderer: *SDL_Renderer,
+  texture: *SDL_Texture,
   width: integer,
   height: integer,
   pitch: cint
@@ -26,14 +26,14 @@ function Window.create(width: integer, height: integer): Window
   return Window{window, renderer, texture, width, height, width*4}
 end
 
-function Window.destroy(self: Window*)
+function Window.destroy(self: *Window)
   SDL_DestroyTexture(self.texture)
   SDL_DestroyRenderer(self.renderer)
   SDL_DestroyWindow(self.window)
   SDL_Quit()
 end
 
-function Window.uploadpixels(self: Window*, pixels: argbcolor*)
+function Window.uploadpixels(self: *Window, pixels: *argbcolor)
   SDL_UpdateTexture(self.texture, nilptr, pixels, self.pitch)
   SDL_RenderCopy(self.renderer, self.texture, nilptr, nilptr)
   SDL_RenderPresent(self.renderer)

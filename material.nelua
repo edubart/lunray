@@ -15,7 +15,7 @@ global Hit = @record{
   p: vec3,
   normal: vec3,
   uv: vec2,
-  mat: Material*,
+  mat: *Material,
   t: number
 }
 
