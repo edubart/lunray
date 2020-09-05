@@ -8,34 +8,43 @@ local is_vec2_or_arithmetic = #[concept(function(b)
   return b.type.is_vec2 or b.type.is_arithmetic
 end)]#
 
-function vec2.__add(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
+function vec2.__add(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec2{a.x + b, a.y + b}
+  ## elseif a.type.is_arithmetic then
+    return vec2{a + b.x, a + b.y}
   ## else
     return vec2{a.x + b.x, a.y + b.y}
   ## end
 end
 
-function vec2.__sub(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
+function vec2.__sub(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec2{a.x - b, a.y - b}
+  ## elseif a.type.is_arithmetic then
+    return vec2{a - b.x, a - b.y}
   ## else
     return vec2{a.x - b.x, a.y - b.y}
   ## end
 end
 
-function vec2.__mul(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
+function vec2.__mul(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     return vec2{a.x * b, a.y * b}
+  ## elseif a.type.is_arithmetic then
+    return vec2{a * b.x, a * b.y}
   ## else
     return vec2{a.x * b.x, a.y * b.y}
   ## end
 end
 
-function vec2.__div(a: vec2, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
+function vec2.__div(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
   ## if b.type.is_arithmetic then
     local k: number = 1 / b
     return vec2{a.x * k, a.y * k}
+  ## elseif a.type.is_arithmetic then
+    local k: number = 1 / a
+    return vec2{k * b.x, k * b.y}
   ## else
     return vec2{a.x / b.x, a.y / b.y}
   ## end
