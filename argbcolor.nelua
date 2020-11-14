@@ -7,9 +7,9 @@ global argbcolor = @record{
 
 function argbcolor.fromvec3(col: vec3): argbcolor <inline>
   return argbcolor{
-    math.clamp(col.z*255, 0, 255),
-    math.clamp(col.y*255, 0, 255),
-    math.clamp(col.x*255, 0, 255),
+    (@uint8)(math.clamp(col.z*255, 0, 255)),
+    (@uint8)(math.clamp(col.y*255, 0, 255)),
+    (@uint8)(math.clamp(col.x*255, 0, 255)),
     255
   }
 end
