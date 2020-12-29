@@ -1,8 +1,8 @@
 ##[[
 DENOISER = true
---OPENMP = true
---CARTOONIZED = true
---EMSCRIPTEN = true
+-- OPENMP = true
+-- CARTOONIZED = true
+-- EMSCRIPTEN = true
 ]]
 
 require 'config'
@@ -19,15 +19,12 @@ require 'sphere'
 require 'camera'
 require 'window'
 
-## if EMSCRIPTEN then
 local SCREEN_WIDTH <comptime> = 480
 local SCREEN_HEIGHT <comptime> = 270
-## else
-local SCREEN_WIDTH <comptime> = 960
-local SCREEN_HEIGHT <comptime> = 540
-## end
 local NUMSAMPLES <comptime> = 1
 local MAXDEPTH <comptime> = 8
+local APERTURE <comptime> = 0.05
+local SCREEN_SCALE <comptime> = 1
 
 local worldsize
 local Hitlist = @array(Sphere,500)
@@ -176,14 +173,14 @@ local function world_init()
   local vup = vec3{0,1,0}
   local vfov = 59
   local aspect = SCREEN_WIDTH/SCREEN_HEIGHT
-  local aperture: number = 0.05
+  local aperture: number = APERTURE
   local focusdist: number = 4
   cam = Camera.create(lookfrom, lookat, vup, vfov, aspect, aperture, focusdist)
 end
 
 local function poll_events() <noinline>
   local event: SDL_Event
-  while SDL_PollEvent(event) ~= 0 do
+  while SDL_PollEvent(&event) ~= 0 do
     switch event.type
     case SDL_QUIT then
       quit = true
@@ -246,7 +243,7 @@ end
 
 local function go()
   world_init()
-  window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT)
+  window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_SCALE)
 
   ## if not EMSCRIPTEN then
     repeat

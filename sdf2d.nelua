@@ -11,8 +11,9 @@ require 'argbcolor'
 require 'sdl2'
 require 'window'
 
-local SCREEN_WIDTH <comptime> = 960
-local SCREEN_HEIGHT <comptime> = 540
+local SCREEN_WIDTH <comptime> = 512
+local SCREEN_HEIGHT <comptime> = 512
+local SCREEN_SCALE <comptime> = 1
 local pixels: [SCREEN_HEIGHT][SCREEN_WIDTH]argbcolor
 local iResolution <const> = vec2{SCREEN_WIDTH, SCREEN_HEIGHT}
 local iInvResolution <const> = vec2{1/SCREEN_WIDTH, 1/SCREEN_HEIGHT}
@@ -91,7 +92,7 @@ end
 
 local function poll_events()
   local event: SDL_Event
-  while SDL_PollEvent(event) ~= 0 do
+  while SDL_PollEvent(&event) ~= 0 do
     switch event.type
     case SDL_QUIT then
       quit = true
@@ -118,7 +119,7 @@ local function emframe(context: pointer) <codename 'emframe'>
 end
 
 local function go()
-  window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT)
+  window = Window.create(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_SCALE)
 
   ## if not EMSCRIPTEN then
     repeat

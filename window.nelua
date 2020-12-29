@@ -7,21 +7,23 @@ global Window = @record {
   pitch: cint
 }
 
-function Window.create(width: integer, height: integer): Window
-  SDL_SetHint('SDL_FRAMEBUFFER_ACCELERATION', '0')
+function Window.create(width: integer, height: integer, scale: integer): Window
+  -- SDL_SetHint('SDL_FRAMEBUFFER_ACCELERATION', '0')
+  -- SDL_SetHint('SDL_HINT_RENDER_SCALE_QUALITY', 'linear')
+  -- SDL_SetHint('SDL_HINT_RENDER_DRIVER', "opengl");
   SDL_Init(SDL_INIT_VIDEO)
 
   local window = SDL_CreateWindow("An SDL2 Window",
     SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-    width, height, SDL_WINDOW_OPENGL)
+    width * scale, height * scale, SDL_WINDOW_OPENGL)
   assert(window, "Could not create window")
 
-  local renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE)
+  local renderer = SDL_CreateRenderer(window, -1, 0)
   assert(renderer, "Could not create renderer")
-  SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE)
+  -- SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE)
 
-  local texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, width, height)
-  SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE)
+  local texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XBGR8888, SDL_TEXTUREACCESS_STREAMING, width, height)
+  -- SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_NONE)
 
   return Window{window, renderer, texture, width, height, width*4}
 end
