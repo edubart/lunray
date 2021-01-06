@@ -6,12 +6,12 @@ global TEXTURES = @enum {
 
 global Texture = @record {
   kind: TEXTURES,
-  color: vec3,
+  diffuse_color: vec3,
   scale: number
 }
 
 function Texture:color_color(uv: vec2, p: vec3): vec3
-  return self.color
+  return self.diffuse_color
 end
 
 function Texture:checker_color(uv: vec2, p: vec3): vec3
@@ -19,13 +19,13 @@ function Texture:checker_color(uv: vec2, p: vec3): vec3
   if sines < 0 then
     return vec3{1,1,1}
   else
-    return self.color
+    return self.diffuse_color
   end
 end
 
 function Texture:noise_color(uv: vec2, p: vec3): vec3
   local noise = Perlin.turb(p * self.scale, 2)*0.5+0.5
-  return self.color * noise
+  return self.diffuse_color * noise
 end
 
 function Texture:color(uv: vec2, p: vec3): vec3
