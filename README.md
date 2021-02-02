@@ -27,7 +27,7 @@ With Nelua and SDL2 libs installed just do:
 
 ```
 git clone https://github.com/edubart/lunray && cd lunray
-nelua lunray.nelua
+nelua --maximum-performance lunray.nelua
 ```
 
 For higher FPS uncomment the `OPENMP = true` line on `lunray.nelua` to enable

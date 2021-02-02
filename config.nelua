@@ -6,10 +6,8 @@ primtypes.uinteger = primtypes.uint32
 if EMSCRIPTEN then
   OPENMP = false
   config.cc = 'emcc'
-  cflags '-O3 -ffast-math -fno-plt -flto --llvm-lto 1 --closure 1 -s USE_SDL=2 -s TOTAL_MEMORY=67108864'
+  cflags '--llvm-lto 1 --closure 1 -s USE_SDL=2 -s TOTAL_MEMORY=67108864'
   cinclude '<emscripten.h>'
-else
-  cflags '-O3 -ffast-math -fno-plt -march=native'
 end
 if OPENMP then
   cflags '-fopenmp'
