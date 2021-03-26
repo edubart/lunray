@@ -2,10 +2,6 @@ require 'math'
 
 global math.tau: number <comptime> = 6.2831853071795865
 
-function math.clamp(x: number, min: number, max: number): number <inline,nosideeffect>
-  return math.max(math.min(x, max), min)
-end
-
 function math.smoothstep(edge0: number, edge1: number, x: number): number <inline,nosideeffect>
   local t = math.clamp((x - edge0) / (edge1 - edge0), 0, 1)
   return t * t * (3 - 2 * t)
@@ -35,10 +31,6 @@ function math.fastexp8(x: number): number <inline,nosideeffect>
     t=t*t
   ## end
   return math.max(t*x,0.0)
-end
-
-function math.fract(x: number): number <inline,nosideeffect>
-  return x - math.floor(x)
 end
 
 function math.fastsin(x: number): number <inline,nosideeffect>

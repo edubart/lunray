@@ -4,45 +4,45 @@ global vec2 = @record {
 }
 ## vec2.value.is_vec2 = true
 
-local is_vec2_or_arithmetic = #[concept(function(b)
-  return b.type.is_vec2 or b.type.is_arithmetic
+local is_vec2_or_scalar = #[concept(function(b)
+  return b.type.is_vec2 or b.type.is_scalar
 end)]#
 
-function vec2.__add(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
-  ## if b.type.is_arithmetic then
+function vec2.__add(a: is_vec2_or_scalar, b: is_vec2_or_scalar): vec2 <inline,nosideeffect>
+  ## if b.type.is_scalar then
     return vec2{a.x + b, a.y + b}
-  ## elseif a.type.is_arithmetic then
+  ## elseif a.type.is_scalar then
     return vec2{a + b.x, a + b.y}
   ## else
     return vec2{a.x + b.x, a.y + b.y}
   ## end
 end
 
-function vec2.__sub(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
-  ## if b.type.is_arithmetic then
+function vec2.__sub(a: is_vec2_or_scalar, b: is_vec2_or_scalar): vec2 <inline,nosideeffect>
+  ## if b.type.is_scalar then
     return vec2{a.x - b, a.y - b}
-  ## elseif a.type.is_arithmetic then
+  ## elseif a.type.is_scalar then
     return vec2{a - b.x, a - b.y}
   ## else
     return vec2{a.x - b.x, a.y - b.y}
   ## end
 end
 
-function vec2.__mul(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
-  ## if b.type.is_arithmetic then
+function vec2.__mul(a: is_vec2_or_scalar, b: is_vec2_or_scalar): vec2 <inline,nosideeffect>
+  ## if b.type.is_scalar then
     return vec2{a.x * b, a.y * b}
-  ## elseif a.type.is_arithmetic then
+  ## elseif a.type.is_scalar then
     return vec2{a * b.x, a * b.y}
   ## else
     return vec2{a.x * b.x, a.y * b.y}
   ## end
 end
 
-function vec2.__div(a: is_vec2_or_arithmetic, b: is_vec2_or_arithmetic): vec2 <inline,nosideeffect>
-  ## if b.type.is_arithmetic then
+function vec2.__div(a: is_vec2_or_scalar, b: is_vec2_or_scalar): vec2 <inline,nosideeffect>
+  ## if b.type.is_scalar then
     local k: number = 1 / b
     return vec2{a.x * k, a.y * k}
-  ## elseif a.type.is_arithmetic then
+  ## elseif a.type.is_scalar then
     local k: number = 1 / a
     return vec2{k * b.x, k * b.y}
   ## else
