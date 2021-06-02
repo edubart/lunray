@@ -45,8 +45,8 @@ function Camera.create(lookfrom: vec3, lookat: vec3, vup: vec3,
     vup = vup,
     vfov = vfov,
     aspect = aspect,
+    aperture = aperture,
     focusdist = focusdist,
-    aperture = aperture
   }
   self:update()
   return self
